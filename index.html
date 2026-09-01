@@ -37,11 +37,11 @@
 <!-- 날아다니는 새들 (app.js가 채웁니다) -->
 <div class="sky" id="sky" aria-hidden="true"></div>
 
-<main class="stage">
-  <div class="flipper" id="flipper">
+<main class="page">
 
-    <!-- ───────────────────────── 앞면 ───────────────────────── -->
-    <section class="face face-front" id="face-front" aria-label="청첩장 앞면">
+  <!-- ───────────────────────── 앞면 ───────────────────────── -->
+  <section class="screen screen-front" aria-label="청첩장 앞면">
+    <div class="card-front" id="card-front">
       <picture>
         <source srcset="assets/img/frame.webp" type="image/webp">
         <img class="frame-art" src="assets/img/frame.png" alt="" width="1176" height="1176" decoding="async">
@@ -62,7 +62,7 @@
         <img class="line orn orn-rule" src="assets/img/divider.webp" alt="" width="200" height="36">
 
         <p class="line invite">Invite you to their wedding celebration</p>
-        <p class="line date">Saturday, 21th of November 2026</p>
+        <p class="line date">Saturday, 21st of November 2026</p>
         <p class="line time">at 12:00PM</p>
 
         <p class="venue">
@@ -70,11 +70,17 @@
           <span class="line venue-2">Catholic Church</span>
         </p>
       </div>
-    </section>
+    </div>
 
-    <!-- ───────────────────────── 뒷면 ───────────────────────── -->
-    <section class="face face-back" id="face-back" aria-label="청첩장 뒷면">
-      <div class="sheet">
+    <p class="scroll-cue" id="scroll-cue" aria-hidden="true">
+      <span>아래로 넘겨보세요</span>
+      <svg viewBox="0 0 24 24" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+    </p>
+  </section>
+
+  <!-- ───────────────────────── 뒷면 ───────────────────────── -->
+  <section class="screen screen-back" aria-label="청첩장 뒷면">
+    <div class="sheet">
         <img class="orn orn-bouquet-back" src="assets/img/bouquet.webp" alt="" width="90" height="111">
 
         <p class="greeting">부족한 두 사람이 만나 사랑으로<br>온전한 하나가 되려 합니다.</p>
@@ -132,20 +138,10 @@
               </button>
             </li>
           </ul>
-        </section>
-      </div>
-    </section>
+      </section>
+    </div>
+  </section>
 
-  </div>
-
-  <!-- 앞/뒤 전환 -->
-  <nav class="switch" id="switch" hidden>
-    <button type="button" class="flip-btn" id="flip-btn" aria-controls="flipper" aria-expanded="false">
-      <span class="flip-label">뒷면 보기</span>
-      <svg class="flip-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9h13a4 4 0 0 1 0 8h-2"/><path d="M8 5 4 9l4 4"/></svg>
-    </button>
-    <p class="switch-hint">좌우로 넘겨도 됩니다</p>
-  </nav>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

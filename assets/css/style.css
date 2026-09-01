@@ -46,9 +46,9 @@ img{max-width:100%;height:auto}
   overflow:hidden;
   pointer-events:none;
   z-index:0;
-  transition:opacity .8s ease;
+  opacity:var(--sky-op,1);
+  transition:opacity .35s ease;
 }
-body.is-back .sky{opacity:.4}
 
 .bird{
   position:absolute;
@@ -101,53 +101,66 @@ body.is-back .sky{opacity:.4}
   50%    {transform:rotate(-30deg)}
 }
 
-/* ── 무대 / 카드 뒤집기 ────────────────────────────────── */
-.stage{
+/* ── 페이지 (앞면 → 뒷면 한 번에 스크롤) ─────────────────── */
+.page{
   position:relative;
   z-index:1;
-  min-height:100vh;
-  min-height:100svh;
-  perspective:2000px;
-  perspective-origin:50% 32%;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  gap:clamp(1.1rem,4vw,1.9rem);
-  padding:calc(env(safe-area-inset-top) + 1.6rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
 }
 
-.flipper{
-  width:var(--card-w);
-  transform-style:preserve-3d;
-  transition:transform .9s cubic-bezier(.22,.72,.16,1);
-}
-.js .flipper{
-  position:relative;
-  min-height:var(--card-w);       /* app.js 가 높이를 계산하기 전의 첫 페인트용 */
-  transition:transform .9s cubic-bezier(.22,.72,.16,1), height .9s cubic-bezier(.22,.72,.16,1);
-}
-.flipper.flipped{transform:rotateY(180deg)}
-
-.face{
+.screen{
   width:100%;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
-.js .face{position:absolute;inset-inline-start:0;top:0}
-.face-back{transform:rotateY(180deg)}
-[inert]{pointer-events:none}
 
-/* JS가 없으면 앞면·뒷면을 그냥 위아래로 펼쳐 보여줍니다.
-   .face-front 의 position:relative 는 유지해야 합니다 — 안쪽 .plate/.frame-art 가
-   absolute 라서, static 으로 바꾸면 카드 밖으로 튀어나옵니다. */
-.no-js .flipper{transform:none}
-.no-js .face{transform:none;backface-visibility:visible}
-.no-js .face-back{margin-top:3rem}
+/* 첫 화면은 카드만 — 가운데 놓고, 아래에 스크롤 힌트 */
+.screen-front{
+  min-height:100vh;
+  min-height:100svh;
+  justify-content:center;
+  gap:clamp(1.4rem,5vw,2.2rem);
+  padding:calc(env(safe-area-inset-top) + 1.4rem) 0 1.4rem;
+}
+.screen-back{
+  padding-bottom:calc(env(safe-area-inset-bottom) + 2.5rem);
+}
+
+/* 스크롤 힌트 — 조금만 내려도 사라집니다 */
+.scroll-cue{
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.3rem;
+  font-size:.72rem;
+  font-weight:300;
+  letter-spacing:.06em;
+  color:var(--ink-55);
+  opacity:var(--cue-op,1);
+  transition:opacity .4s ease;
+}
+.no-js .scroll-cue{opacity:1}
+.scroll-cue svg{
+  width:1.15rem;height:1.15rem;
+  fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;
+  animation:cue-bob 1.9s ease-in-out infinite;
+}
+@keyframes cue-bob{
+  0%,100%{transform:translateY(-2px);opacity:.55}
+  50%    {transform:translateY(3px);opacity:1}
+}
 
 /* ── 앞면 ─────────────────────────────────────────────── */
-.face-front{position:relative;aspect-ratio:1/1}
-.js .face-front{position:absolute}
+.card-front{
+  position:relative;
+  width:var(--card-w);
+  aspect-ratio:1/1;
+}
 
 .frame-art{
   position:absolute;inset:0;
@@ -204,6 +217,7 @@ body.is-back .sky{opacity:.4}
 
 /* ── 뒷면 ─────────────────────────────────────────────── */
 .sheet{
+  width:var(--card-w);
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -375,44 +389,6 @@ body.is-back .sky{opacity:.4}
 .copy:active{transform:scale(.96)}
 .copy.done{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 
-/* ── 전환 컨트롤 ──────────────────────────────────────── */
-.switch{display:flex;flex-direction:column;align-items:center;gap:.5rem}
-.no-js .switch{display:none}
-
-.flip-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:.55em;
-  padding:.78em 1.5em;
-  border:1px solid var(--rule);
-  border-radius:999px;
-  background:rgba(255,255,255,.55);
-  color:var(--ink);
-  font-family:var(--ko);
-  font-size:.86rem;
-  font-weight:500;
-  letter-spacing:.02em;
-  cursor:pointer;
-  transition:background .25s ease, border-color .25s ease;
-  -webkit-tap-highlight-color:transparent;
-}
-.flip-btn:hover{background:#fff;border-color:var(--ink-55)}
-.flip-icon{
-  width:1.05em;height:1.05em;
-  fill:none;stroke:currentColor;stroke-width:1.7;
-  stroke-linecap:round;stroke-linejoin:round;
-  transition:transform .5s cubic-bezier(.22,.72,.16,1);
-}
-.flipper.flipped ~ .switch .flip-icon{transform:scaleX(-1)}
-
-.switch-hint{
-  margin:0;
-  font-size:.72rem;
-  font-weight:300;
-  letter-spacing:.02em;
-  color:var(--ink-55);
-}
-
 /* ── 토스트 ───────────────────────────────────────────── */
 .toast{
   position:fixed;
@@ -444,6 +420,6 @@ body.is-back .sky{opacity:.4}
 
 @media (prefers-reduced-motion:reduce){
   .sky{display:none}
-  .flipper,.js .flipper{transition:none}
-  .flip-icon,.copy,.toast{transition:none}
+  .scroll-cue svg{animation:none}
+  .copy,.toast,.plate{transition:none}
 }

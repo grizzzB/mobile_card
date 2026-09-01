@@ -1,7 +1,7 @@
 /* ============================================================
    모바일 청첩장 — 동작
-   1) 앞/뒷면 전환 (버튼 · 스와이프 · 좌우 방향키)
-   2) 앞면 하늘을 나는 새
+   1) 앞면 글자는 웹폰트가 준비된 뒤에 표시
+   2) 앞면 하늘을 나는 새 (스크롤을 내리면 옅어짐)
    3) 계좌번호 복사
    ============================================================ */
 (function () {
@@ -9,7 +9,10 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── 0) 앞면 글자는 웹폰트가 준비된 뒤에 ────────────────
+  // 새로고침해도 항상 앞면부터 보이게
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  /* ── 1) 웹폰트 준비 후 앞면 글자 표시 ───────────────────
      Pinyon Script / PT Serif 대신 Times·필기체 기본값이 먼저 번쩍이는 걸 막습니다.
      폰트를 못 받아도 2.5초 뒤에는 반드시 보여줍니다. */
   var fontsShown = false;
@@ -21,84 +24,6 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(showPlate);
   else showPlate();
   setTimeout(showPlate, 2500);
-
-  /* ── 1) 앞/뒷면 전환 ─────────────────────────────────── */
-  var flipper = document.getElementById('flipper');
-  var faces   = { front: document.getElementById('face-front'), back: document.getElementById('face-back') };
-  var btn     = document.getElementById('flip-btn');
-  var label   = btn.querySelector('.flip-label');
-  var nav     = document.getElementById('switch');
-  var showing = 'front';
-
-  nav.removeAttribute('hidden');
-
-  function syncHeight() {
-    flipper.style.height = faces[showing].offsetHeight + 'px';
-  }
-
-  function render() {
-    var isBack = showing === 'back';
-    flipper.classList.toggle('flipped', isBack);
-    document.body.classList.toggle('is-back', isBack);
-    label.textContent = isBack ? '앞면 보기' : '뒷면 보기';
-    btn.setAttribute('aria-expanded', String(isBack));
-
-    // 보이지 않는 면은 탭 이동·클릭 대상에서 제외
-    faces.front.inert = isBack;
-    faces.back.inert  = !isBack;
-    faces.front.setAttribute('aria-hidden', String(isBack));
-    faces.back.setAttribute('aria-hidden', String(!isBack));
-
-    syncHeight();
-  }
-
-  function show(side) {
-    if (side === showing) return;
-    showing = side;
-    render();
-    // 이미 맨 위라면 굳이 스크롤을 건드리지 않습니다(사용자 스크롤과 충돌 방지).
-    if (window.scrollY > 0)
-      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
-  }
-
-  btn.addEventListener('click', function () {
-    show(showing === 'front' ? 'back' : 'front');
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === 'ArrowLeft')  show('front');
-    if (e.key === 'ArrowRight') show('back');
-  });
-
-  // 스와이프
-  var tx = 0, ty = 0, tracking = false;
-  document.addEventListener('touchstart', function (e) {
-    if (e.touches.length !== 1 || e.target.closest('button')) { tracking = false; return; }
-    tracking = true;
-    tx = e.touches[0].clientX;
-    ty = e.touches[0].clientY;
-  }, { passive: true });
-
-  document.addEventListener('touchend', function (e) {
-    if (!tracking) return;
-    tracking = false;
-    var t = e.changedTouches[0];
-    var dx = t.clientX - tx, dy = t.clientY - ty;
-    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
-    show(dx < 0 ? 'back' : 'front');
-  }, { passive: true });
-
-  // 글꼴 로딩·화면 회전 등으로 높이가 바뀌면 맞춰줍니다.
-  render();
-  window.addEventListener('resize', syncHeight);
-  window.addEventListener('load', syncHeight);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncHeight);
-  if (window.ResizeObserver) {
-    var ro = new ResizeObserver(syncHeight);
-    ro.observe(faces.front);
-    ro.observe(faces.back);
-  }
 
   /* ── 2) 하늘을 나는 새 ───────────────────────────────── */
   var BIRDS = [
@@ -117,9 +42,10 @@
   var WING_L = 'M20 10.6C16.4 10.9 13 9.4 9.6 6.3 7.8 4.7 5.9 3.5 3.4 3.1';
   var WING_R = 'M20 10.6c3.6.3 7-1.2 10.4-4.3 1.8-1.6 3.7-2.8 6.2-3.2';
 
+  var sky = document.getElementById('sky');
+
   if (!reduceMotion) {
-    var sky = document.getElementById('sky');
-    var html = BIRDS.map(function (b) {
+    sky.insertAdjacentHTML('afterbegin', BIRDS.map(function (b) {
       return '<span class="bird' + (b.rev ? ' rev' : '') + '" style="' +
         'top:' + b.top + '%;' +
         '--size:' + b.size + 'px;' +
@@ -133,8 +59,30 @@
           '<path class="wing wing-l" d="' + WING_L + '"/>' +
           '<path class="wing wing-r" d="' + WING_R + '"/>' +
         '</svg></span></span>';
-    }).join('');
-    sky.insertAdjacentHTML('afterbegin', html);
+    }).join(''));
+  }
+
+  /* ── 스크롤: 뒷면으로 내려가면 새는 옅어지고 힌트는 사라짐 ── */
+  var cue = document.getElementById('scroll-cue');
+  var root = document.documentElement;
+  var ticking = false;
+
+  function onScroll() {
+    var y = window.scrollY || window.pageYOffset || 0;
+    var span = Math.max(window.innerHeight * 0.75, 1);
+    var t = Math.min(y / span, 1);                       // 0 = 앞면, 1 = 뒷면
+    root.style.setProperty('--sky-op', (1 - t * 0.9).toFixed(3));
+    root.style.setProperty('--cue-op', (1 - Math.min(y / 120, 1)).toFixed(3));
+    ticking = false;
+  }
+
+  if (cue) {
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(onScroll);
+    }, { passive: true });
+    onScroll();
   }
 
   /* ── 3) 계좌번호 복사 ────────────────────────────────── */
@@ -152,9 +100,7 @@
     if (navigator.clipboard && window.isSecureContext) {
       return navigator.clipboard.writeText(text).catch(legacyCopy);
     }
-    return new Promise(function (resolve, reject) {
-      legacyCopy().then(resolve, reject);
-    });
+    return legacyCopy();
 
     // 구형 브라우저(특히 iOS 13 이하)용 대체 경로.
     // contentEditable + 화면 밖 배치 조합이어야 iOS 에서 선택이 먹습니다.
