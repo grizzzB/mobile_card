@@ -1,0 +1,248 @@
+.locationSection {
+  padding: 0 0 2rem;
+  background: white;
+  opacity: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: #333;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Map */
+.mapFrame {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.mapInner {
+  width: 100%;
+  font: normal normal 400 12px/normal dotum, sans-serif;
+  color: #333;
+}
+
+.mapImage {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  display: block;
+}
+
+.mapFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: none;
+  border-radius: 0 0 2px 2px;
+  background-color: #f9f9f9;
+}
+
+.mapFooterLinks {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 11px;
+}
+
+.mapFooterLinks a {
+  color: #000;
+  text-decoration: none;
+  line-height: 15px;
+}
+
+.mapFooterLinks a:hover {
+  text-decoration: underline;
+}
+
+.mapDivider {
+  display: inline-block;
+  width: 1px;
+  height: 11px;
+  background: #d0d0d0;
+  margin: 0 8px;
+  vertical-align: middle;
+}
+
+/* Navigation */
+.navSection {
+  padding: 0 2rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.venueName {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.5rem;
+  font-weight: 700 !important;
+  font-family: 'Noto Serif KR', serif !important;
+}
+
+.address {
+  font-size: 0.85rem;
+  color: #333;
+  margin: 0 0 0.5rem;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.phone {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 300;
+  text-decoration: none;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+
+
+.navButtons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.navButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #333;
+  text-decoration: none;
+  transition: all 0.2s;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.navButton:hover {
+  border-color: #888;
+  color: #333;
+}
+
+/* Directions */
+.directions {
+  padding: 0 2rem 1rem;
+  text-align: left;
+}
+
+.dirGroup {
+  margin-bottom: 1.5rem;
+}
+
+.dirTitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: #333;
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+}
+
+.dirItem {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: flex-start;
+}
+
+.dirBullet {
+  font-size: 0.5rem;
+  color: #333;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.subwayBullet {
+  color: #BDB092;
+}
+
+.busTrunkBullet {
+  color: #3366CC;
+}
+
+.busBranchBullet {
+  color: #4CAF50;
+}
+
+.dirText {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.dirDetail {
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.dirTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.parkingNavButtons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.parkingNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #333;
+  text-decoration: none;
+  background: white;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+
+.parkingNavBtn:hover {
+  border-color: #888;
+}
+
+.parkingNavIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}

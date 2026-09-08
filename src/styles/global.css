@@ -1,0 +1,72 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Scroll fade animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Section header band */
+.section-header {
+  background: #f7f6f4;
+  width: calc(100% + 4rem);
+  margin: -4rem -2rem 2rem;
+  padding: 2rem 2rem 1.75rem;
+  text-align: center;
+}
+
+/* For sections with no horizontal padding (Gallery, Location) */
+.section-header-full {
+  background: #f7f6f4;
+  width: 100%;
+  padding: 2rem 2rem 1.75rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-header h2,
+.section-header-full h2 {
+  margin-bottom: 0.35rem;
+}
+
+.section-header p,
+.section-header-full p {
+  margin-bottom: 0;
+}

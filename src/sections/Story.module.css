@@ -1,0 +1,128 @@
+.interviewSection {
+  padding: 4rem 2rem;
+  background: white;
+  opacity: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: #333;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.poem {
+  margin-bottom: 2.5rem;
+}
+
+.poemText {
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 2;
+  white-space: pre-wrap;
+  font-family: 'Noto Serif KR', serif;
+  font-weight: 300;
+}
+
+.parents {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  row-gap: 0.75rem;
+  column-gap: 0.4rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+  justify-content: center;
+}
+
+.parentLine {
+  display: contents;
+}
+
+.parentNames {
+  color: #333;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.parentRole {
+  color: #333;
+  font-weight: 300;
+  font-size: 0.85rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.personName {
+  color: #333;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.contactRow {
+  display: flex;
+  justify-content: center;
+}
+
+.contactLink {
+  display: inline-block;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: #333;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.contactLink:hover {
+  color: #333;
+}
+
+@keyframes storyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeItem {
+  opacity: 0;
+  animation: storyFadeIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-play-state: paused;
+}
+
+:global(.fade-in-up) .fadeItem {
+  animation-play-state: running;
+}
+
+/* Only play when parent section is visible */
+.interviewSection.fade-in-up .fadeItem {
+  animation-play-state: running;
+}
