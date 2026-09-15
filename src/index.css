@@ -1,6 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@200..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@100..900&family=Noto+Serif+KR:wght@200..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Pinyon+Script&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 
 :root {
   --text: #333;
@@ -9,8 +7,10 @@
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
 
-  --sans: 'Gowun Dodum', 'Noto Serif KR', system-ui, sans-serif;
-  --heading: 'Gowun Dodum', 'Noto Serif KR', system-ui, sans-serif;
+  --sans: 'Noto Sans KR', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --serif: 'PT Serif', 'Times New Roman', serif;
+  --script: 'Pinyon Script', cursive;
+  --heading: var(--sans);
   --mono: ui-monospace, Consolas, monospace;
 
   font: 16px/1.6 var(--sans);
@@ -37,7 +37,7 @@
 }
 
 body {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--sans);
   margin: 0;
   background: #fff;
 }

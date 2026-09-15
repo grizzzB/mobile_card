@@ -18,7 +18,7 @@ const GallerySection: React.FC = () => {
   const galleryImages = useMemo(() =>
     Object.entries(imageModules)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([path, url], index) => ({
+      .map(([, url], index) => ({
         id: String(index + 1),
         src: url,
         alt: `Wedding photo ${index + 1}`,

@@ -20,7 +20,7 @@ const buildAccounts = (
   if (!person.bank) return [];
   return [{
     bankName: person.bank.name,
-    accountNumber: person.bank.accountNumber,
+    accountNumber: person.bank.accountNumber.replace(/\D/g, ''),
     accountHolder: person.name,
     relation: relationLabel,
     kakaopayUrl: person.bank.kakaoPayUrl,
@@ -43,9 +43,13 @@ function AccountGroup({ label, accounts }: { label: string; accounts: AccountIte
   const [open, setOpen] = useState(false);
   const { showToast } = useUI();
 
-  const handleCopy = (accountNumber: string) => {
-    navigator.clipboard.writeText(`${accountNumber.replaceAll('-', '')}`);
-    showToast('복사가 완료되었습니다', 'success');
+  const handleCopy = async (accountNumber: string) => {
+    try {
+      await navigator.clipboard.writeText(accountNumber);
+      showToast('계좌번호가 복사되었습니다', 'success');
+    } catch {
+      showToast('복사하지 못했습니다. 다시 시도해 주세요', 'error');
+    }
   };
 
   return (

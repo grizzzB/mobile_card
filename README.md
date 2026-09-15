@@ -150,9 +150,28 @@ Drop image files into `src/assets/gallery/`. No list to maintain — photos are 
 
 Swap out `public/assets/music.mp3` and update `musicSrc` in `weddingInfo.ts` if the filename changes.
 
-### Map embed
+### Kakao map and shuttle schedule
 
-Generate a new Kakao Roughmap embed from [map.kakao.com](https://map.kakao.com), copy the image `src` and surrounding link `href` values, and update the `venue.mapEmbed` fields in `weddingInfo.ts`.
+The Location section reserves a 300px map area below the venue address.
+It stays blank until the Kakao Maps JavaScript SDK is connected. Create a local `.env`
+from `.env.example`, then set `VITE_KAKAO_MAP_APP_KEY` to your **JavaScript key**.
+Register `http://localhost:5173` (and the eventual site domain) in that key's
+JavaScript SDK domain settings. Enable the Kakao Map API for the application
+if required in Kakao Developers. Restart Vite after changing `.env`.
+See the [official Kakao setup guide](https://apis.map.kakao.com/web/guide/).
+
+The JavaScript key is used in the browser; never use an Admin or REST API key here.
+
+- `LOCATION_POINTS` in `src/utils/constants/transportation.ts` defines map locations.
+- The church is resolved from its address. Suseo Exit 6 is resolved only from an
+  unambiguous matching place name; unmatched positions are not plotted.
+- **Parking entrance coordinates are pending confirmation.**
+  Add `coordinates: { lat, lng }` to the parking entry and update the description
+  after verifying the precise location. The church also represents the post-ceremony
+  shuttle boarding location; it has no separate marker.
+- `DIRECTIONS.shuttle.trips` defines the before/after ceremony routes and departure times.
+- Without a key or when the SDK fails, the reserved map area stays blank.
+  The before/after shuttle cards remain visible, without location buttons.
 
 ## Formspree (RSVP)
 

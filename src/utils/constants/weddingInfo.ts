@@ -27,9 +27,17 @@ export const WEDDING_CONFIG: {
 		},
 		father: {
 			name: "변희석",
+			bank: {
+				name: "SC제일은행",
+				accountNumber: "157-20-199742",
+			},
 		},
 		mother: {
 			name: "최은정",
+			bank: {
+				name: "우리은행",
+				accountNumber: "264-063081-02-001",
+			},
 		},
 	},
 	groom: {
@@ -57,4 +65,11 @@ export const WEDDING_CONFIG: {
 	},
 	invitationText: "부족한 두 사람이 만나 사랑으로\n온전한 하나가 되려 합니다.\n\n한 자 한 자 용기 내어 써 내려갈\n이야기의 첫 줄,\n그 곁에 함께해 주세요.",
 	musicSrc: "/assets/music.mp3",
+};
+
+// English lettering from the original invitation cover.
+export const WEDDING_COVER = {
+	groomName: 'Domyoung Lee',
+	brideName: 'Hyunjin Byun',
+	venueLines: ['Segokdong', 'Catholic Church'],
 };

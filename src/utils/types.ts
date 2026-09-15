@@ -53,7 +53,26 @@ export type Bus = {
 };
 
 export type Shuttle = {
+	trips: {
+		id: 'before' | 'after';
+		label: string;
+		departure: string;
+		destination: string;
+		mapPointId: string;
+		times: string[];
+	}[];
+};
+
+export type MapPoint = {
+	id: string;
+	label: string;
+	badge: string;
 	description: string;
+	query?: string;
+	address?: string;
+	// Only set these to a confirmed parking entrance or boarding position.
+	coordinates?: { lat: number; lng: number };
+	matchName?: string;
 };
 
 export type ParkingLot = {

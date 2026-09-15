@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useScrollFade } from '../hooks/useScrollFade';
 import styles from './Location.module.css';
 import { WEDDING_CONFIG } from '../utils/constants/weddingInfo';
-import { DIRECTIONS, NAVIGATION_APPS } from '../utils/constants/transportation';
+import { DIRECTIONS } from '../utils/constants/transportation';
 import Collapsible from '../components/Collapsible';
+import VenueMap from '../components/VenueMap';
 
 
 export default function Location() {
@@ -20,64 +21,7 @@ export default function Location() {
           <p className={styles.subtitle}>오시는 길</p>
         </div>
 
-        {/* Kakao roughmap embed */}
-        {venue.mapEmbed && (
-          <div className={styles.mapFrame}>
-            <div className={styles.mapInner}>
-              <div style={{ height: '280px' }}>
-                <a
-                  href={venue.mapEmbed.mainLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={venue.mapEmbed.imageUrl}
-                    alt={`${venue.venueName} 지도`}
-                    className={styles.mapImage}
-                  />
-                </a>
-              </div>
-              <div className={styles.mapFooter}>
-                <a href="https://map.kakao.com" target="_blank" rel="noopener noreferrer">
-                  <img
-                    src="//t1.kakaocdn.net/localimg/localimages/07/2018/pc/common/logo_kakaomap.png"
-                    width="72"
-                    height="16"
-                    alt="카카오맵"
-                    style={{ display: 'block' }}
-                  />
-                </a>
-                <div className={styles.mapFooterLinks}>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={venue.mapEmbed.roadsideLink}
-                  >
-                    로드뷰
-                  </a>
-                  <span className={styles.mapDivider} />
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={venue.mapEmbed.directionsLink}
-                  >
-                    길찾기
-                  </a>
-                  <span className={styles.mapDivider} />
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={venue.mapEmbed.fullMapLink}
-                  >
-                    지도 크게 보기
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Venue info + Navigation apps */}
+        {/* Venue information */}
         <div className={styles.navSection}>
           <h3 className={styles.venueName}>{venue.venueName}</h3>
           <p className={styles.address}>{venue.venueAddress}</p>
@@ -86,25 +30,10 @@ export default function Location() {
               Tel. {venue.phone}
             </a>
           )}
-          <div className={styles.navButtons}>
-            {NAVIGATION_APPS.map((app) => (
-              <a
-                key={app.name}
-                href={app.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.navButton}
-              >
-                <img
-                  src={app.name === '카카오맵' ? '/assets/kakaoMap.svg' : app.name === '티맵' ? '/assets/tmap.svg' : '/assets/naverMap.svg'}
-                  alt={app.name}
-                  className={styles.parkingNavIcon}
-                />
-                {app.name}
-              </a>
-            ))}
-          </div>
+
         </div>
+
+        <VenueMap />
 
         {/* Directions */}
         <div className={styles.directions}>
@@ -153,7 +82,6 @@ export default function Location() {
                 주차 안내 {openSection === 'parking' ? '▲' : '▼'}
               </button>
               <Collapsible open={openSection === 'parking'}>
-                <p className={styles.dirDetail} style={{ textAlign: 'center', marginBottom: '0.75rem' }}>외부 주차장 선 주차 후 웨딩홀 이동 부탁드립니다 <br /> 도보 5분 소요 - 2시간 무료 주차</p> <br />
                 {DIRECTIONS.parking.map((item, idx) => (
                   <div key={idx} className={styles.dirItem}>
                     <span className={styles.dirBullet}>●</span>
@@ -192,15 +120,34 @@ export default function Location() {
             </div>
           )}
 
-          {DIRECTIONS.shuttle && (
-            <div className={styles.dirGroup}>
-              <h4 className={styles.dirTitle}>셔틀버스</h4>
-              <div className={styles.dirItem}>
-                <span className={styles.dirBullet}>●</span>
-                <span className={styles.dirText}>{DIRECTIONS.shuttle.description}</span>
-              </div>
+          <div className={styles.shuttleSection}>
+            <div className={styles.shuttleHeading}>
+              <span className={styles.shuttleEyebrow}>SHUTTLE BUS</span>
+              <h4>셔틀버스 안내</h4>
+              <p>오실 때와 돌아가실 때, 출발 시간을 확인해 주세요.</p>
             </div>
-          )}
+            <div className={styles.shuttleCards}>
+              {DIRECTIONS.shuttle.trips.map(trip => (
+                <article key={trip.id} className={`${styles.shuttleCard} ${trip.id === 'after' ? styles.returnCard : ''}`} aria-label={`${trip.label} 셔틀 시간표`}>
+                  <div className={styles.tripHeader}>
+                    <h5 className={styles.tripBadge}>{trip.label}</h5>
+                    <span>{trip.id === 'before' ? '성당으로 오실 때' : '예식을 마친 후'}</span>
+                  </div>
+                  <dl className={styles.route}>
+                    <div><dt>출발</dt><dd>{trip.departure}</dd></div>
+                    <div><dt>도착</dt><dd>{trip.destination}</dd></div>
+                  </dl>
+                  <div className={styles.schedule}>
+                    <h6>출발 시간</h6>
+                    <ul className={styles.departureTimes} aria-label={`${trip.label} 출발 시간`}>
+                      {trip.times.map(time => <li key={time}><time>{time}</time></li>)}
+                    </ul>
+                  </div>
+
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
