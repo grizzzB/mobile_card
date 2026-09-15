@@ -6,7 +6,6 @@ import MusicPlayer from './components/MusicPlayer';
 import Hero from './sections/Hero';
 import Story from './sections/Story';
 import Calendar from './sections/Calendar';
-import GallerySection from './sections/GallerySection';
 import Location from './sections/Location';
 import Gifts from './sections/Gifts';
 import RSVP from './sections/RSVP';
@@ -24,7 +23,6 @@ function App() {
         <Location />
         <Gifts />
         <RSVP />
-        <GallerySection />
         <Ending />
       </main>
     </UIProvider>
