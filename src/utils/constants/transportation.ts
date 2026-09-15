@@ -29,7 +29,7 @@ export const LOCATION_POINTS: MapPoint[] = [
 	{
 		id: 'venue', badge: '성당', label: '세곡동 성당',
 		description: '예식 장소 · 예식 후 셔틀 탑승',
-		address: '서울 강남구 율현동 165-2', query: '세곡동성당',
+		query: '세곡동성당', placeId: '1607311092',
 	},
 	{
 		id: 'parking', badge: 'P', label: '성당 주차장',
@@ -40,6 +40,7 @@ export const LOCATION_POINTS: MapPoint[] = [
 		id: 'suseo', badge: '6', label: '수서역 6번 출구',
 		description: '예식 전 · 셔틀 탑승 장소',
 		query: '수서역 6번출구', matchName: '수서역.*6번출구',
+		placeId: '10552075',
 	},
 ];
 

@@ -10,7 +10,12 @@ function resolvePoint(maps: KakaoMaps, point: MapPoint): Promise<LatLng | null> 
   return new Promise((resolve) => {
     const timer = window.setTimeout(() => resolve(null), 8000);
     const finish = (position: LatLng | null) => { window.clearTimeout(timer); resolve(position); };
-    if (point.address) {
+    if (point.query && point.placeId) {
+      new maps.services.Places().keywordSearch(point.query, (results, status) => {
+        const result = status === maps.services.Status.OK ? results.find(item => item.id === point.placeId) : undefined;
+        finish(result ? new maps.LatLng(Number(result.y), Number(result.x)) : null);
+      });
+    } else if (point.address) {
       new maps.services.Geocoder().addressSearch(point.address, (results, status) => {
         const result = status === maps.services.Status.OK ? results[0] : undefined;
         finish(result ? new maps.LatLng(Number(result.y), Number(result.x)) : null);
@@ -32,6 +37,8 @@ export default function VenueMap() {
   const container = useRef<HTMLDivElement>(null);
   const appKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY?.trim();
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>(appKey ? 'loading' : 'unavailable');
+  const [parkingRoute, setParkingRoute] = useState('https://map.kakao.com/link/to/1607311092');
+  const [suseoRoute, setSuseoRoute] = useState('https://map.kakao.com/link/to/10552075');
 
   useEffect(() => {
     if (!appKey || !container.current) return;
@@ -46,6 +53,17 @@ export default function VenueMap() {
       if (!resolved.length) throw new Error('No confirmed map positions');
       const map: MapInstance = new maps.Map(element, { center: resolved[0].position, level: 4, scrollwheel: false });
       const bounds = new maps.LatLngBounds();
+      const parking = resolved.find(entry => entry.point.id === 'parking');
+      const venue = resolved.find(entry => entry.point.id === 'venue');
+      const suseo = resolved.find(entry => entry.point.id === 'suseo');
+      if (suseo) {
+        setSuseoRoute(`https://map.kakao.com/link/to/${encodeURIComponent(suseo.point.label)},${suseo.position.getLat()},${suseo.position.getLng()}`);
+      }
+      const parkingDestination = parking ?? venue;
+      if (parkingDestination) {
+        const { point, position } = parkingDestination;
+        setParkingRoute(`https://map.kakao.com/link/to/${encodeURIComponent(point.label)},${position.getLat()},${position.getLng()}`);
+      }
       resolved.forEach(({ point, position }) => {
         bounds.extend(position);
         const label = document.createElement('span');
@@ -77,6 +95,24 @@ export default function VenueMap() {
         {status !== 'ready' && (
           <div className={styles.placeholder} role="img" aria-label="지도 표시 영역" />
         )}
+      </div>
+      <div className={styles.routeActions}>
+        <div className={styles.routeCard}>
+          <span className={styles.routeBadge}>6</span>
+          <div className={styles.routeText}>
+            <strong>수서역 6번 출구</strong>
+            <small>예식 전 셔틀 탑승</small>
+          </div>
+          <a className={styles.routeButton} href={suseoRoute} target="_blank" rel="noopener noreferrer" aria-label="수서역 6번 출구까지 길찾기">길찾기 ↗</a>
+        </div>
+        <div className={styles.routeCard}>
+          <span className={styles.routeBadge}>P</span>
+          <div className={styles.routeText}>
+            <strong>세곡동 성당 주차장</strong>
+            <small>{LOCATION_POINTS.find(point => point.id === 'parking')?.coordinates ? '주차장 입구' : '성당 주소 기준'}</small>
+          </div>
+          <a className={styles.routeButton} href={parkingRoute} target="_blank" rel="noopener noreferrer" aria-label="세곡동 성당 주차장 방향 길찾기">길찾기 ↗</a>
+        </div>
       </div>
     </div>
   );

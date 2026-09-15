@@ -69,6 +69,7 @@ export type MapPoint = {
 	badge: string;
 	description: string;
 	query?: string;
+	placeId?: string;
 	address?: string;
 	// Only set these to a confirmed parking entrance or boarding position.
 	coordinates?: { lat: number; lng: number };

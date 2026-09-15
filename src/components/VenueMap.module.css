@@ -36,3 +36,51 @@
 @media (max-width: 350px) {
   .section { margin-inline: 1rem; }
 }
+
+.routeActions {
+  display: grid;
+  gap: .55rem;
+  margin-top: .75rem;
+  text-align: left;
+}
+
+.routeCard {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-height: 64px;
+  padding: .7rem .8rem;
+  border: 1px solid #e3e5e7;
+  border-radius: 12px;
+  color: #2b4059;
+  background: #fff;
+}
+
+.routeBadge {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #2b4059;
+  background: #eaf0f5;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.routeText { flex: 1; min-width: 0; }
+.routeText strong { display: block; font-size: .78rem; line-height: 1.5; word-break: keep-all; }
+.routeText small { display: block; color: #6b7783; font-size: .68rem; line-height: 1.5; }
+.routeButton {
+  flex-shrink: 0;
+  padding: .55rem .7rem;
+  border-radius: 8px;
+  color: #fff;
+  background: #2b4059;
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.routeButton:hover { background: #435e78; }
+.routeButton:focus-visible { outline: 2px solid #2b4059; outline-offset: 3px; }

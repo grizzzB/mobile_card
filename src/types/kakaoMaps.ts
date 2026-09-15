@@ -8,7 +8,7 @@ export interface MapInstance {
   relayout(): void;
 }
 export interface MapOverlay { setMap(map: MapInstance | null): void }
-export interface PlaceResult { place_name: string; x: string; y: string; place_url: string }
+export interface PlaceResult { id: string; place_name: string; x: string; y: string; place_url: string }
 export interface KakaoMaps {
   load(callback: () => void): void;
   LatLng: new (lat: number, lng: number) => LatLng;
