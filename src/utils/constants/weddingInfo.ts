@@ -64,7 +64,7 @@ export const WEDDING_CONFIG: {
 		// 지도를 붙이려면 카카오맵 > 공유 > 로드맵 만들기에서 값을 받아 채워주세요.
 	},
 	invitationText: "부족한 두 사람이 만나 사랑으로\n온전한 하나가 되려 합니다.\n\n한 자 한 자 용기 내어 써 내려갈\n이야기의 첫 줄,\n그 곁에 함께해 주세요.",
-	musicSrc: "/assets/music.mp3",
+	musicSrc: `${import.meta.env.BASE_URL}assets/music.mp3`,
 };
 
 // English lettering from the original invitation cover.

@@ -95,19 +95,19 @@ export default function Location() {
                         <div className={styles.parkingNavButtons}>
                           {item.nav.naver && (
                             <a href={item.nav.naver} target="_blank" rel="noopener noreferrer" className={styles.parkingNavBtn}>
-                              <img src="/assets/naverMap.svg" alt="네이버지도" className={styles.parkingNavIcon} />
+                              <img src={`${import.meta.env.BASE_URL}assets/naverMap.svg`} alt="네이버지도" className={styles.parkingNavIcon} />
                               네이버지도
                             </a>
                           )}
                           {item.nav.kakao && (
                             <a href={item.nav.kakao} target="_blank" rel="noopener noreferrer" className={styles.parkingNavBtn}>
-                              <img src="/assets/kakaoMap.svg" alt="카카오맵" className={styles.parkingNavIcon} />
+                              <img src={`${import.meta.env.BASE_URL}assets/kakaoMap.svg`} alt="카카오맵" className={styles.parkingNavIcon} />
                               카카오맵
                             </a>
                           )}
                           {item.nav.tmap && (
                             <a href={item.nav.tmap} target="_blank" rel="noopener noreferrer" className={styles.parkingNavBtn}>
-                              <img src="/assets/tmap.svg" alt="티맵" className={styles.parkingNavIcon} />
+                              <img src={`${import.meta.env.BASE_URL}assets/tmap.svg`} alt="티맵" className={styles.parkingNavIcon} />
                               티맵
                             </a>
                           )}

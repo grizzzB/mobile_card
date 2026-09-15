@@ -187,6 +187,34 @@ VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
 
 The variable is accessed in `src/sections/RSVP.tsx` via `import.meta.env.VITE_FORMSPREE_ENDPOINT`. If the variable is missing, it falls back to a placeholder URL and submissions will fail silently — make sure it's set before deploying.
 
+## Deployment (GitHub Pages)
+
+Pushes to `main` and manual runs of `.github/workflows/pages.yml` install with
+`npm ci`, build using Node.js 24, upload `dist`, and deploy it to GitHub Pages.
+
+In the repository's **Settings → Pages → Build and deployment**, select
+**GitHub Actions** as the source. The workflow reads the site's base path from
+`actions/configure-pages`, so assets work under `/mobile_card/` as well as a custom domain.
+Local development continues to use `/`.
+
+For optional features, add repository Actions variables under
+**Settings → Secrets and variables → Actions → Variables**:
+
+- `VITE_FORMSPREE_ENDPOINT`: the RSVP form endpoint.
+- `VITE_KAKAO_MAP_APP_KEY`: the Kakao JavaScript key; register the deployed domain in Kakao Developers.
+
+These Vite values are included in the public browser bundle. Do not use private server keys.
+A local `.env` is not uploaded to GitHub Actions.
+
+To verify the Pages path locally:
+
+```bash
+VITE_BASE_PATH=/mobile_card/ npm run build
+VITE_BASE_PATH=/mobile_card/ npm run preview -- --host 0.0.0.0
+```
+
+Open `http://localhost:4173/mobile_card/`.
+
 ## Deployment (Cloudflare Workers)
 
 The project is configured to deploy as a static site via [Cloudflare Workers Assets](https://developers.cloudflare.com/workers/static-assets/). The `wrangler.jsonc` at the project root defines the deployment:

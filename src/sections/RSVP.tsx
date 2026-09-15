@@ -105,15 +105,15 @@ export default function RSVP() {
 
             <div className={styles.modalInfo}>
               <p className={styles.modalInfoItem}>
-                <img src="/calendar.svg" className={styles.modalInfoIcon} alt="" />
+                <img src={`${import.meta.env.BASE_URL}calendar.svg`} className={styles.modalInfoIcon} alt="" />
                 {weddingDate.year}.{String(weddingDate.month).padStart(2, '0')}.{String(weddingDate.day).padStart(2, '0')} ({dayName}) 오후 {weddingDate.hour > 12 ? weddingDate.hour - 12 : weddingDate.hour}시 {String(weddingDate.minute).padStart(2, '0')}분
               </p>
               <p className={styles.modalInfoItem}>
-                <img src="/venue.svg" className={styles.modalInfoIcon} alt="" />
+                <img src={`${import.meta.env.BASE_URL}venue.svg`} className={styles.modalInfoIcon} alt="" />
                 {venue.venueName}
               </p>
               <p className={styles.modalInfoItem}>
-                <img src="/placeholder.svg" className={styles.modalInfoIcon} alt="" />
+                <img src={`${import.meta.env.BASE_URL}placeholder.svg`} className={styles.modalInfoIcon} alt="" />
                 {venue.venueAddress}
               </p>
             </div>

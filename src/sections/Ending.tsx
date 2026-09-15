@@ -34,7 +34,7 @@ export default function Ending() {
         </div>
 
         <button className={styles.shareBtn} onClick={handleKakaoShare}>
-          <img src="/assets/kakaoTalk.svg" alt="" className={styles.shareBtnIcon} />
+          <img src={`${import.meta.env.BASE_URL}assets/kakaoTalk.svg`} alt="" className={styles.shareBtnIcon} />
           카카오톡으로 초대장 보내기
         </button>
 

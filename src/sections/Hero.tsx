@@ -13,7 +13,7 @@ export default function Hero() {
     <section className={styles.heroSection} aria-label="청첩장 표지">
       <div className={styles.card}>
         <img
-          src="/assets/legacy/frame.webp"
+          src={`${import.meta.env.BASE_URL}assets/legacy/frame.webp`}
           alt=""
           width="1176"
           height="1176"
@@ -21,14 +21,14 @@ export default function Hero() {
           className={styles.frame}
         />
         <div className={styles.plate}>
-          <img className={`${styles.line} ${styles.bouquet}`} src="/assets/legacy/bouquet.webp" alt="" width="90" height="111" />
+          <img className={`${styles.line} ${styles.bouquet}`} src={`${import.meta.env.BASE_URL}assets/legacy/bouquet.webp`} alt="" width="90" height="111" />
           <p className={`${styles.line} ${styles.eyebrow}`}>Together with their families</p>
           <h1 className={styles.names} aria-label={`${groom.self.name} 그리고 ${bride.self.name} 결혼합니다`}>
             <span className={`${styles.line} ${styles.name1}`}>{WEDDING_COVER.groomName}</span>
             <span className={`${styles.line} ${styles.amp}`}>&amp;</span>
             <span className={`${styles.line} ${styles.name2}`}>{WEDDING_COVER.brideName}</span>
           </h1>
-          <img className={`${styles.line} ${styles.divider}`} src="/assets/legacy/divider.webp" alt="" width="200" height="36" />
+          <img className={`${styles.line} ${styles.divider}`} src={`${import.meta.env.BASE_URL}assets/legacy/divider.webp`} alt="" width="200" height="36" />
           <p className={`${styles.line} ${styles.invite}`}>Invite you to their wedding celebration</p>
           <p className={`${styles.line} ${styles.date}`}>{dateLabel}</p>
           <p className={`${styles.line} ${styles.time}`}>at {timeLabel}</p>

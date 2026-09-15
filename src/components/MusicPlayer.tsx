@@ -88,7 +88,7 @@ export default function MusicPlayer() {
                     </svg>
                 ) : (
                     <span className={styles.icon}>
-                        <img src="./assets/playMusic.svg" />
+                        <img src={`${import.meta.env.BASE_URL}assets/playMusic.svg`} />
                     </span>
                 )}
             </button>
