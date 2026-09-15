@@ -1,54 +1,235 @@
-# 모바일 청첩장 — 이도명 ♥ 변현진
+# 💍 Wedding Invitation
 
-2026년 11월 21일 토요일 오후 12시 · 세곡동 성당 대성전 3층
+A Korean digital wedding invitation (모바일 청첩장) built as a single-page app. Guests can view the wedding details, count down to the date, explore the photo gallery, find directions to the venue, and RSVP — all from a mobile browser.
 
-인쇄 청첩장(코발트블루 별색 레터프레스) 시안을 그대로 옮긴 한 장짜리 정적 페이지입니다.
-GitHub Pages 로 배포되며, 인쇄물의 QR 코드가 이 주소를 가리킵니다.
+## Features
 
-## 구성
+- **Hero** — Full-bleed cover photo with the couple's names
+- **Story** — Invitation text and couple/parents introduction
+- **Calendar** — Wedding date with a mini monthly calendar and live D-day countdown
+- **Location** — Embedded Kakao map, venue details, and collapsible directions (subway, bus, parking) with one-tap navigation app deep links (Naver Map, Kakao Map, T-map)
+- **Gifts** — Bank account numbers for gift money, with one-tap copy to clipboard and Kakao Pay links
+- **RSVP** — Modal form (name, attendance, guest count, message) submitted to Formspree
+- **Gallery** — Photo grid with lazy loading, "load more", and a fullscreen lightbox
+- **Ending** — KakaoTalk share button with Web Share API / clipboard fallback
+- **Music player** — Floating button that plays background music on loop; auto-plays on first user interaction
+
+## Tech Stack
+
+- **React 19** + **TypeScript**
+- **Vite 8** for development and bundling
+- **CSS Modules** — no external UI library
+- **Formspree** for RSVP form submissions
+- No routing, no state management library, no backend
+
+## Project Structure
 
 ```
-index.html              앞면 / 뒷면 마크업 (한 페이지 스크롤)
-assets/css/style.css    레이아웃 · 타이포 · 새 애니메이션
-assets/js/app.js        나는 새, 스크롤 연동, 계좌번호 복사
-assets/img/
-  frame.webp / .png     아치 프레임 + 꽃·새 판화 (시안에서 추출, 글자 제거)
-  bouquet.webp / .png   작은 부케 장식
-  divider.webp / .png   이름 아래 구분 장식
-  share.jpg             카카오톡·OG 미리보기 이미지 (1200×630)
-  favicon.svg           탭 아이콘
-  apple-touch-icon.png  홈 화면 아이콘
+src/
+├── assets/
+│   └── gallery/           # Wedding photos — drop files here, prefix with numbers to order
+├── sections/          # Page sections (Hero, Story, Calendar, Location, Gifts, RSVP, GallerySection, Ending)
+├── components/        # Shared components (Gallery, MusicPlayer, DdayCount, Collapsible, Toast, Button, Input)
+├── context/           # UIContext — toast notifications and shared modal state
+├── hooks/             # useScrollFade — IntersectionObserver-based scroll entrance animation
+├── utils/
+│   ├── constants/
+│   │   ├── weddingInfo.ts      # All wedding data (date, couple, venue, bank accounts)
+│   │   └── transportation.ts   # Directions and navigation app links
+│   ├── dateUtils.ts            # D-day calculation and date formatting helpers
+│   └── types.ts                # Shared TypeScript types
+public/
+└── assets/            # SVG icons, background music, hero image
 ```
 
-## 동작
+## Getting Started
 
-앞면 카드 한 화면 → 아래로 스크롤하면 뒷면 내용이 이어지는 한 페이지 구성입니다.
+### Prerequisites
 
-- **첫 화면** — 카드를 화면 가운데 놓고 아래에 "아래로 넘겨보세요" 힌트.
-  조금만 스크롤하면 힌트는 사라집니다.
-- **나는 새** — 앞면 하늘에 갈매기 실루엣 8마리. 날갯짓·상하 흔들림·속도·크기를
-  각자 다르게 줬고, 카드 본문과 겹치지 않도록 화면 위·아래 띠에만 배치했습니다.
-  뒷면으로 내려가면 옅어집니다.
-- **계좌번호 복사** — `navigator.clipboard` 우선, 실패 시 `execCommand` 대체 경로
-  (구형 iOS 대응). 숫자만 복사되어 은행 앱에 바로 붙습니다.
-- 앞면 글자는 웹폰트가 준비된 뒤 페이드인 — Times/기본 필기체가 먼저 번쩍이지 않습니다.
-- `prefers-reduced-motion` 을 켠 기기에서는 새와 힌트 애니메이션이 멈춥니다.
-- JS 가 없어도 모든 정보가 그대로 읽힙니다.
+- Node.js 18+
+- npm
 
-## 타이포그래피
-
-시안 이미지(카드 한 변 1176px)에서 각 줄의 잉크 폭과 대문자 높이를 실측해,
-`--u`(카드 폭의 1%) 기준으로 `font-size` 와 `letter-spacing` 을 역산했습니다.
-`style.css` 의 `.eyebrow` ~ `.venue-2` 주석 참고.
-
-- 세리프: PT Serif 700 (시안의 전환기 세리프에 가장 근접)
-- 이름: Pinyon Script (카퍼플레이트 인그레이빙 스크립트)
-- 한글: Noto Sans KR
-
-## 로컬에서 보기
+### Installation
 
 ```bash
-python3 -m http.server 4173
+npm install
 ```
 
-`http://localhost:4173` 접속.
+### Environment Variables
+
+`.env` is **not committed to the repo** (it's in `.gitignore`). Create it manually in the project root before running the app:
+
+```env
+VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/your_form_id
+```
+
+See [Formspree setup](#formspree-rsvp) below for how to get your endpoint.
+
+### Development
+
+```bash
+npm run dev
+```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+Preview the build locally:
+
+```bash
+npm run preview
+```
+
+## Customization
+
+All wedding-specific data lives in a small set of files — you only need to edit those to adapt this for a different wedding.
+
+### `src/utils/constants/weddingInfo.ts`
+
+The central config file. Everything couples-specific lives here.
+
+```ts
+weddingDate: {
+  year, month, day,   // wedding date
+  hour, minute,       // ceremony time (24h)
+  dayOfTheWeek,       // e.g. '일요일'
+}
+
+bride / groom: {
+  self:   { name }
+  father: { name, bank? }   // add bank to show account in Gifts section
+  mother: { name, bank? }   // bank: { name, accountNumber, kakaoPayUrl? }
+}
+
+venue: {
+  venueName, venueAddress, phone,
+  mapEmbed: {
+    imageUrl,       // Kakao Roughmap static image src
+    mainLink,       // link wrapping the map image
+    roadsideLink,   // 로드뷰 footer link
+    directionsLink, // 길찾기 footer link
+    fullMapLink,    // 지도 크게 보기 footer link
+    // → generate all of these from map.kakao.com's "roughmap" embed tool
+  }
+}
+
+invitationText  // invitation poem shown in the Story section (use \n for line breaks)
+musicSrc        // path to background music, e.g. '/assets/music.mp3'
+```
+
+### `src/utils/constants/transportation.ts`
+
+Directions and navigation app deep links for the venue.
+
+```ts
+DIRECTIONS.subway   // subway lines, stations, exits, walking directions
+DIRECTIONS.bus      // bus types, route numbers, stop names
+DIRECTIONS.parking  // parking lot names, addresses, per-lot nav links
+                    // (naver, kakao, tmap per lot)
+
+NAVIGATION_APPS     // the three nav buttons shown under the map
+                    // [ { name: '네이버지도', url }, { name: '카카오맵', url }, { name: '티맵', url } ]
+                    // use share/shortlinks from each map service for the venue
+```
+
+### Gallery photos
+
+Drop image files into `src/assets/gallery/`. No list to maintain — photos are picked up automatically at build time via `import.meta.glob`.
+
+**Ordering:** files are sorted alphabetically, so prefix filenames with numbers to control the display order:
+```
+01_ceremony.jpg
+02_portraits.jpg
+03_reception.jpg
+```
+
+### Music
+
+Swap out `public/assets/music.mp3` and update `musicSrc` in `weddingInfo.ts` if the filename changes.
+
+### Kakao map and shuttle schedule
+
+The Location section reserves a 300px map area below the venue address.
+It stays blank until the Kakao Maps JavaScript SDK is connected. Create a local `.env`
+from `.env.example`, then set `VITE_KAKAO_MAP_APP_KEY` to your **JavaScript key**.
+Register `http://localhost:5173` (and the eventual site domain) in that key's
+JavaScript SDK domain settings. Enable the Kakao Map API for the application
+if required in Kakao Developers. Restart Vite after changing `.env`.
+See the [official Kakao setup guide](https://apis.map.kakao.com/web/guide/).
+
+The JavaScript key is used in the browser; never use an Admin or REST API key here.
+
+- `LOCATION_POINTS` in `src/utils/constants/transportation.ts` defines map locations.
+- The church is resolved from its address. Suseo Exit 6 is resolved only from an
+  unambiguous matching place name; unmatched positions are not plotted.
+- **Parking entrance coordinates are pending confirmation.**
+  Add `coordinates: { lat, lng }` to the parking entry and update the description
+  after verifying the precise location. The church also represents the post-ceremony
+  shuttle boarding location; it has no separate marker.
+- `DIRECTIONS.shuttle.trips` defines the before/after ceremony routes and departure times.
+- Without a key or when the SDK fails, the reserved map area stays blank.
+  The before/after shuttle cards remain visible, without location buttons.
+
+## Formspree (RSVP)
+
+The RSVP form submits to [Formspree](https://formspree.io), a third-party form backend — no server required.
+
+1. Create a free account at [formspree.io](https://formspree.io) and create a new form.
+2. Copy the form endpoint (looks like `https://formspree.io/f/xxxxxxxx`).
+3. Add it to your `.env` file (which is **not** in the repo — create it locally):
+
+```env
+VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
+```
+
+The variable is accessed in `src/sections/RSVP.tsx` via `import.meta.env.VITE_FORMSPREE_ENDPOINT`. If the variable is missing, it falls back to a placeholder URL and submissions will fail silently — make sure it's set before deploying.
+
+## Deployment (Cloudflare Workers)
+
+The project is configured to deploy as a static site via [Cloudflare Workers Assets](https://developers.cloudflare.com/workers/static-assets/). The `wrangler.jsonc` at the project root defines the deployment:
+
+```jsonc
+{
+  "name": "wed-inv",
+  "compatibility_date": "2026-05-18",
+  "placement": { "region": "aws:ap-northeast-2" },  // Seoul region
+  "assets": { "directory": "./dist" }               // serves the Vite build output
+}
+```
+
+### Deploy steps
+
+1. Install the [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/):
+   ```bash
+   npm install -g wrangler
+   ```
+
+2. Authenticate with your Cloudflare account:
+   ```bash
+   wrangler login
+   ```
+
+3. Build the app:
+   ```bash
+   npm run build
+   ```
+
+4. Deploy:
+   ```bash
+   wrangler deploy
+   ```
+
+> The `dist/` directory is gitignored. Always run `npm run build` before deploying.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local dev server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `wrangler deploy` | Deploy to Cloudflare Workers |

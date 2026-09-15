@@ -1,0 +1,67 @@
+.endingSection {
+  padding: 4rem 2rem 3rem;
+  background: white;
+  opacity: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.poem {
+  margin-bottom: 3rem;
+}
+
+.poemText {
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 2.2;
+  white-space: pre-wrap;
+  font-family: var(--sans);
+  font-weight: 300;
+  margin-bottom: 1rem;
+}
+
+.poemSource {
+  font-size: 0.75rem;
+  color: #333;
+  letter-spacing: 0.05em;
+  font-weight: 300;
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: #f9e000;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #3c1e1e;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: background 0.2s;
+  margin-bottom: 3rem;
+}
+
+.shareBtnIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.shareBtn:hover {
+  background: #f0d800;
+}
+
+.copyright {
+  font-size: 0.7rem;
+  color: #ccc;
+  letter-spacing: 0.05em;
+  font-weight: 300;
+}

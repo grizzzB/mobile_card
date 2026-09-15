@@ -1,0 +1,9 @@
+/* App-specific styles */
+main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+section {
+  width: 100%;
+}

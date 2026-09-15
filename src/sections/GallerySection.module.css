@@ -1,0 +1,27 @@
+.gallerySection {
+  padding: 0 0 2rem;
+  background: white;
+  opacity: 0;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 2rem 2rem 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: #333;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+}
+
+.description {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 400;
+}

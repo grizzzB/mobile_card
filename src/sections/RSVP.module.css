@@ -1,0 +1,276 @@
+.rsvpSection {
+  padding: 4rem 2rem;
+  background: white;
+  opacity: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: #333;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.75rem;
+  font-weight: 400;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.8;
+  margin: 0 0 1.5rem;
+  font-weight: 300;
+}
+
+.openBtn {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  border: 1px solid #333;
+  background: transparent;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: #333;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  border-radius: 5px;
+  font-weight: 700;
+}
+
+.openBtn:hover {
+  background: #333;
+  color: white;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: overlayIn 0.3s ease forwards;
+}
+
+.overlayClosing {
+  animation: overlayOut 0.35s ease forwards;
+}
+
+.modal {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px 12px 0 0;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  animation: modalIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.modalClosing {
+  animation: modalOut 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modalOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.modalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #333;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modalTitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.modalDesc {
+  font-size: 0.8rem;
+  color: #333;
+  line-height: 1.7;
+  text-align: center;
+  margin: 0 0 1.5rem;
+  font-weight: 300;
+}
+
+.modalInfo {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modalInfoItem {
+  font-size: 0.82rem;
+  color: #333;
+  font-weight: 700;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modalInfoIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+
+.label {
+  font-size: 0.78rem;
+  color: #333;
+  letter-spacing: 0.05em;
+}
+
+.input,
+.select,
+.textarea {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #333;
+  background: white;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.submitBtn {
+  margin-top: 0.5rem;
+  padding: 0.85rem;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #111;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success {
+  text-align: center;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.error {
+  font-size: 0.8rem;
+  color: #e53e3e;
+  text-align: center;
+}

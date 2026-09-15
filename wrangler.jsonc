@@ -1,0 +1,10 @@
+{
+    "name": "wed-inv",
+    "compatibility_date": "2026-05-18",
+    "placement": {
+        "region": "aws:ap-northeast-2"
+    },
+    "assets": {
+        "directory": "./dist"
+    }
+}

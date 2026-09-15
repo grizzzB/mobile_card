@@ -1,0 +1,190 @@
+.locationSection {
+  padding: 0 0 2rem;
+  background: white;
+  opacity: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: #333;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  font-weight: 400;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Navigation */
+.navSection {
+  padding: 0 2rem 1.5rem;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.venueName {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.5rem;
+  font-weight: 700 !important;
+  font-family: var(--sans) !important;
+}
+
+.address {
+  font-size: 0.85rem;
+  color: #333;
+  margin: 0 0 0.5rem;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.phone {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 300;
+  text-decoration: none;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+
+
+/* Directions */
+.directions {
+  padding: 0 2rem 1rem;
+  text-align: left;
+}
+
+.dirGroup {
+  margin-bottom: 1.5rem;
+}
+
+.dirTitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: #333;
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+}
+
+.dirItem {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: flex-start;
+}
+
+.dirBullet {
+  font-size: 0.5rem;
+  color: #333;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.subwayBullet {
+  color: #BDB092;
+}
+
+.busTrunkBullet {
+  color: #3366CC;
+}
+
+.busBranchBullet {
+  color: #4CAF50;
+}
+
+.dirText {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.dirDetail {
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.dirTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.parkingNavButtons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.parkingNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #333;
+  text-decoration: none;
+  background: white;
+  transition: border-color 0.2s;
+  white-space: nowrap;
+}
+
+.parkingNavBtn:hover {
+  border-color: #888;
+}
+
+.parkingNavIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+/* Shuttle schedules */
+.shuttleSection { color: #2b4059; }
+.shuttleHeading { margin-bottom: 1.25rem; text-align: center; }
+.shuttleEyebrow { font-size: .63rem; letter-spacing: .2em; color: #80909f; }
+.shuttleHeading h4 { margin: .35rem 0 .5rem; font-size: 1.1rem; font-weight: 600; color: #2b4059; }
+.shuttleHeading p { margin: 0 auto; max-width: 17rem; font-size: .76rem; line-height: 1.8; color: #717d88; word-break: keep-all; }
+.shuttleCards { display: grid; gap: 1rem; }
+.shuttleCard { border: 1px solid #dce3ea; border-radius: 18px; overflow: hidden; background: #fff; }
+.tripHeader { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: 1rem; background: #edf2f6; }
+.tripBadge { margin: 0; background: #2b4059; color: white; padding: .35rem .7rem; border-radius: 20px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.tripHeader > span { font-size: .73rem; color: #526779; }
+.returnCard { border-color: #e3ded4; }
+.returnCard .tripHeader { background: #f4f1eb; }
+.returnCard .tripBadge { background: #75664e; }
+.returnCard .tripHeader > span { color: #796e5e; }
+.route { padding: 1.25rem 1.1rem; margin: 0; display: grid; gap: .8rem; }
+.route > div { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: .55rem; align-items: baseline; }
+.route dt { font-size: .7rem; font-weight: 400; color: #77838e; }
+.route dd { margin: 0; font-size: .95rem; font-weight: 600; word-break: keep-all; }
+.route > div + div dd { font-size: .83rem; color: #687784; font-weight: 400; }
+.schedule { margin: 0 1.1rem; padding: 1rem 0 1.15rem; border-top: 1px solid #e6e9ed; }
+.schedule h6 { font-size: .7rem; font-weight: 400; margin: 0 0 .65rem; color: #77838e; }
+.departureTimes { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.departureTimes li { flex: 1; min-width: 4.1rem; padding: .5rem .35rem; border-radius: 8px; background: #f2f5f7; text-align: center; }
+.departureTimes time { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.returnCard .departureTimes li { background: #f7f4ef; }
+@media (max-width: 350px) { .directions { padding-inline: 1rem; } }
