@@ -1,0 +1,38 @@
+.section {
+  margin: 0 1.25rem 2.5rem;
+  scroll-margin-top: 1rem;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #e3e5e7;
+}
+
+.map {
+  width: 100%;
+  height: 300px;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  background: #f5f4f0;
+}
+
+.marker {
+  display: block;
+  padding: .5rem .7rem;
+  border: 1px solid #fff;
+  border-radius: 10px;
+  color: white;
+  background: #2b4059;
+  box-shadow: 0 2px 8px #0003;
+  white-space: nowrap;
+  font: 600 12px/1.4 var(--sans);
+}
+
+@media (max-width: 350px) {
+  .section { margin-inline: 1rem; }
+}
