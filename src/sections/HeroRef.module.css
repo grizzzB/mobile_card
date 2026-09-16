@@ -15,9 +15,8 @@
 
 .card {
   position: relative;
-  width: min(100%, calc(100svh - 7.2rem));
-  aspect-ratio: 1;
-  container-type: inline-size;
+  width: min(100%, calc((100svh - 6.2rem) * .6982));
+  aspect-ratio: 1048 / 1501;
 }
 
 .frame,
@@ -29,7 +28,7 @@
 }
 
 .frame {
-  object-fit: contain;
+  object-fit: cover;
   max-width: none;
 }
 
