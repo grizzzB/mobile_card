@@ -8,7 +8,7 @@
   margin: 0;
   padding: calc(env(safe-area-inset-top) + 1.2rem) 0 1.2rem;
   gap: 1.1rem;
-  background: #f7f4ec;
+  background: #fcfcf3;
   color: #2b4059;
   box-sizing: border-box;
 }
@@ -19,7 +19,9 @@
   aspect-ratio: 1048 / 1501;
 }
 
-.frame,
+.baseLayer,
+.birdLayer,
+.coverLayer,
 .plate {
   position: absolute;
   inset: 0;
@@ -27,9 +29,35 @@
   height: 100%;
 }
 
-.frame {
+.baseLayer,
+.birdLayer {
   object-fit: cover;
   max-width: none;
+}
+
+.coverLayer {
+  object-fit: contain;
+  max-width: none;
+}
+
+.baseLayer {
+  z-index: 0;
+}
+
+.birdLayer {
+  z-index: 1;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.birdTop {
+  clip-path: inset(0 36% 45% 0);
+  transform: translate(-16%, -10%) scale(.5);
+}
+
+.birdBottom {
+  clip-path: inset(45% 0 0 36%);
+  transform: translate(8%, 12%) scale(.6);
 }
 
 .line {
