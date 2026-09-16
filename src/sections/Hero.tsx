@@ -20,28 +20,6 @@ export default function Hero() {
           fetchPriority="high"
           className={styles.frame}
         />
-        <div className={styles.hoppers} aria-hidden="true">
-          <div className={`${styles.hopper} ${styles.hopperTl}`}>
-            <div className={styles.hopperBob}>
-              <img
-                src={`${import.meta.env.BASE_URL}assets/legacy/bird-tl.webp`}
-                alt=""
-                width="337"
-                height="401"
-              />
-            </div>
-          </div>
-          <div className={`${styles.hopper} ${styles.hopperBr}`}>
-            <div className={styles.hopperBob}>
-              <img
-                src={`${import.meta.env.BASE_URL}assets/legacy/bird-br.webp`}
-                alt=""
-                width="422"
-                height="384"
-              />
-            </div>
-          </div>
-        </div>
         <div className={styles.plate}>
           <img className={`${styles.line} ${styles.bouquet}`} src={`${import.meta.env.BASE_URL}assets/legacy/bouquet.webp`} alt="" width="90" height="111" />
           <p className={`${styles.line} ${styles.eyebrow}`}>Together with their families</p>
