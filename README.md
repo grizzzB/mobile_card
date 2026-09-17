@@ -1,24 +1,26 @@
 # 💍 Wedding Invitation
 
-A Korean digital wedding invitation (모바일 청첩장) built as a single-page app. Guests can view the wedding details, count down to the date, explore the photo gallery, find directions to the venue, and RSVP — all from a mobile browser.
+A Korean digital wedding invitation (모바일 청첩장) built as a single-page app. Guests can view the wedding details, count down to the date, find the venue on a Kakao map, check the shuttle schedule, and RSVP — all from a mobile browser.
 
 ## Features
 
-- **Hero** — Full-bleed cover photo with the couple's names
+- **Hero** — Layered invitation cover artwork
 - **Story** — Invitation text and couple/parents introduction
 - **Calendar** — Wedding date with a mini monthly calendar and live D-day countdown
-- **Location** — Embedded Kakao map, venue details, and collapsible directions (subway, bus, parking) with one-tap navigation app deep links (Naver Map, Kakao Map, T-map)
-- **Gifts** — Bank account numbers for gift money, with one-tap copy to clipboard and Kakao Pay links
+- **Location** — Kakao map with venue / shuttle / parking markers, 길찾기 links, and a before/after ceremony shuttle timetable. Optional collapsible subway, bus, and parking notes appear only when those lists have data
+- **Gifts** — Bank account numbers for gift money, with one-tap copy to clipboard and optional Kakao Pay links
 - **RSVP** — Modal form (name, attendance, guest count, message) submitted to Formspree
-- **Gallery** — Photo grid with lazy loading, "load more", and a fullscreen lightbox
-- **Ending** — KakaoTalk share button with Web Share API / clipboard fallback
+- **Ending** — Share button with Web Share API / clipboard fallback
 - **Music player** — Floating button that plays background music on loop; auto-plays on first user interaction
+
+A photo gallery section exists in the codebase but is not currently mounted in `App.tsx`. See [Gallery photos](#gallery-photos) to enable it.
 
 ## Tech Stack
 
 - **React 19** + **TypeScript**
 - **Vite 8** for development and bundling
 - **CSS Modules** — no external UI library
+- **Kakao Maps JavaScript SDK** for the venue map
 - **Formspree** for RSVP form submissions
 - No routing, no state management library, no backend
 
@@ -26,27 +28,29 @@ A Korean digital wedding invitation (모바일 청첩장) built as a single-page
 
 ```
 src/
-├── assets/
-│   └── gallery/           # Wedding photos — drop files here, prefix with numbers to order
-├── sections/          # Page sections (Hero, Story, Calendar, Location, Gifts, RSVP, GallerySection, Ending)
-├── components/        # Shared components (Gallery, MusicPlayer, DdayCount, Collapsible, Toast, Button, Input)
+├── sections/          # Page sections (Hero, Story, Calendar, Location, Gifts, RSVP, Ending)
+├── components/        # Shared UI (VenueMap, MusicPlayer, DdayCount, Collapsible, Toast, Button, Input, Gallery)
 ├── context/           # UIContext — toast notifications and shared modal state
 ├── hooks/             # useScrollFade — IntersectionObserver-based scroll entrance animation
+├── types/             # Kakao Maps SDK type declarations
 ├── utils/
 │   ├── constants/
 │   │   ├── weddingInfo.ts      # All wedding data (date, couple, venue, bank accounts)
-│   │   └── transportation.ts   # Directions and navigation app links
+│   │   └── transportation.ts   # Map points, shuttle times, optional directions
+│   ├── kakaoMaps.ts            # Kakao Maps SDK loader
 │   ├── dateUtils.ts            # D-day calculation and date formatting helpers
 │   └── types.ts                # Shared TypeScript types
 public/
-└── assets/            # SVG icons, background music, hero image
+└── assets/            # Cover images, SVG icons, background music
+Dockerfile             # Multi-stage Node build + nginx static server
+nginx.conf             # SPA routing and static asset caching
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+ (Vite 8). CI and Docker use Node.js 24.
 - npm
 
 ### Installation
@@ -57,13 +61,16 @@ npm install
 
 ### Environment Variables
 
-`.env` is **not committed to the repo** (it's in `.gitignore`). Create it manually in the project root before running the app:
+Copy `.env.example` to `.env` in the project root (`.env` is gitignored):
 
 ```env
 VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/your_form_id
+VITE_KAKAO_MAP_APP_KEY=your_kakao_javascript_key
 ```
 
-See [Formspree setup](#formspree-rsvp) below for how to get your endpoint.
+`VITE_BASE_PATH` is optional. Leave it unset for local development (`/`). GitHub Pages sets it in CI so assets work under a project path such as `/mobile_card/`.
+
+See [Formspree setup](#formspree-rsvp) and [Kakao map](#kakao-map-and-shuttle-schedule) below.
 
 ### Development
 
@@ -95,49 +102,45 @@ The central config file. Everything couples-specific lives here.
 weddingDate: {
   year, month, day,   // wedding date
   hour, minute,       // ceremony time (24h)
-  dayOfTheWeek,       // e.g. '일요일'
+  dayOfTheWeek,       // e.g. '토요일'
 }
 
 bride / groom: {
-  self:   { name }
-  father: { name, bank? }   // add bank to show account in Gifts section
-  mother: { name, bank? }   // bank: { name, accountNumber, kakaoPayUrl? }
+  self:   { name, bank? }   // add bank to show the person's account in Gifts
+  father: { name, bank? }
+  mother: { name, bank? }
+  // bank: { name, accountNumber, kakaoPayUrl? }
 }
 
 venue: {
   venueName, venueAddress, phone,
-  mapEmbed: {
-    imageUrl,       // Kakao Roughmap static image src
-    mainLink,       // link wrapping the map image
-    roadsideLink,   // 로드뷰 footer link
-    directionsLink, // 길찾기 footer link
-    fullMapLink,    // 지도 크게 보기 footer link
-    // → generate all of these from map.kakao.com's "roughmap" embed tool
-  }
 }
 
 invitationText  // invitation poem shown in the Story section (use \n for line breaks)
-musicSrc        // path to background music, e.g. '/assets/music.mp3'
+musicSrc        // background music URL; keep import.meta.env.BASE_URL so GitHub Pages paths work
 ```
+
+`WEDDING_COVER` holds the English names used on the original invitation artwork.
 
 ### `src/utils/constants/transportation.ts`
 
-Directions and navigation app deep links for the venue.
+Map markers, shuttle times, and optional written directions.
 
 ```ts
-DIRECTIONS.subway   // subway lines, stations, exits, walking directions
-DIRECTIONS.bus      // bus types, route numbers, stop names
-DIRECTIONS.parking  // parking lot names, addresses, per-lot nav links
-                    // (naver, kakao, tmap per lot)
+LOCATION_POINTS     // markers plotted on the Kakao map
+                    // venue / parking / suseo; unmatched points are skipped
 
-NAVIGATION_APPS     // the three nav buttons shown under the map
-                    // [ { name: '네이버지도', url }, { name: '카카오맵', url }, { name: '티맵', url } ]
-                    // use share/shortlinks from each map service for the venue
+DIRECTIONS.shuttle.trips
+                    // before/after ceremony routes and departure times
+
+DIRECTIONS.subway   // shown only when the array is non-empty
+DIRECTIONS.bus
+DIRECTIONS.parking  // optional per-lot Naver / Kakao / T-map links
 ```
 
 ### Gallery photos
 
-Drop image files into `src/assets/gallery/`. No list to maintain — photos are picked up automatically at build time via `import.meta.glob`.
+The gallery is implemented (`src/sections/GallerySection.tsx`) but not rendered. To enable it, import `GallerySection` in `src/App.tsx` and drop image files into `src/assets/gallery/`. Photos are picked up automatically at build time via `import.meta.glob`.
 
 **Ordering:** files are sorted alphabetically, so prefix filenames with numbers to control the display order:
 ```
@@ -148,13 +151,13 @@ Drop image files into `src/assets/gallery/`. No list to maintain — photos are 
 
 ### Music
 
-Swap out `public/assets/music.mp3` and update `musicSrc` in `weddingInfo.ts` if the filename changes.
+Place the audio file at `public/assets/music.mp3`. Update `musicSrc` in `weddingInfo.ts` if the filename changes; keep `import.meta.env.BASE_URL` in the path.
 
 ### Kakao map and shuttle schedule
 
-The Location section reserves a 300px map area below the venue address.
-It stays blank until the Kakao Maps JavaScript SDK is connected. Create a local `.env`
-from `.env.example`, then set `VITE_KAKAO_MAP_APP_KEY` to your **JavaScript key**.
+The Location section reserves a map area below the venue address.
+It stays blank until the Kakao Maps JavaScript SDK is connected. Copy `.env.example`
+to `.env`, then set `VITE_KAKAO_MAP_APP_KEY` to your **JavaScript key**.
 Register `http://localhost:5173` (and the eventual site domain) in that key's
 JavaScript SDK domain settings. Enable the Kakao Map API for the application
 if required in Kakao Developers. Restart Vite after changing `.env`.
@@ -163,15 +166,16 @@ See the [official Kakao setup guide](https://apis.map.kakao.com/web/guide/).
 The JavaScript key is used in the browser; never use an Admin or REST API key here.
 
 - `LOCATION_POINTS` in `src/utils/constants/transportation.ts` defines map locations.
-- The church is resolved from its address. Suseo Exit 6 is resolved only from an
+- The church is resolved from a Kakao place id. Suseo Exit 6 is resolved only from an
   unambiguous matching place name; unmatched positions are not plotted.
 - **Parking entrance coordinates are pending confirmation.**
   Add `coordinates: { lat, lng }` to the parking entry and update the description
-  after verifying the precise location. The church also represents the post-ceremony
-  shuttle boarding location; it has no separate marker.
+  after verifying the precise location. Until then, parking 길찾기 uses the church
+  position. The church also represents the post-ceremony shuttle boarding location;
+  it has no separate marker.
 - `DIRECTIONS.shuttle.trips` defines the before/after ceremony routes and departure times.
 - Without a key or when the SDK fails, the reserved map area stays blank.
-  The before/after shuttle cards remain visible, without location buttons.
+  The before/after shuttle cards remain visible.
 
 ## Formspree (RSVP)
 
@@ -179,7 +183,7 @@ The RSVP form submits to [Formspree](https://formspree.io), a third-party form b
 
 1. Create a free account at [formspree.io](https://formspree.io) and create a new form.
 2. Copy the form endpoint (looks like `https://formspree.io/f/xxxxxxxx`).
-3. Add it to your `.env` file (which is **not** in the repo — create it locally):
+3. Add it to your `.env` file:
 
 ```env
 VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
@@ -214,6 +218,31 @@ VITE_BASE_PATH=/mobile_card/ npm run preview -- --host 0.0.0.0
 ```
 
 Open `http://localhost:4173/mobile_card/`.
+
+## Deployment (Docker)
+
+The `Dockerfile` builds the Vite app with Node.js 24 and serves `dist` with nginx on port 80. `nginx.conf` falls back to `index.html` so client-side navigation still works.
+
+Pass public Vite values as build arguments (they are baked into the JS bundle):
+
+```bash
+docker build \
+  --build-arg VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx \
+  --build-arg VITE_KAKAO_MAP_APP_KEY=your_kakao_javascript_key \
+  -t mobile-card .
+```
+
+`VITE_BASE_PATH` defaults to `/`. Override it only if the container is served under a subpath.
+
+Run the image:
+
+```bash
+docker run --rm -p 8080:80 mobile-card
+```
+
+Open `http://localhost:8080`. Register that origin (or the real domain) in Kakao Developers if the map should load.
+
+Do not pass Admin or REST API keys. `.env` is excluded from the build context via `.dockerignore`.
 
 ## Deployment (Cloudflare Workers)
 
@@ -261,3 +290,5 @@ The project is configured to deploy as a static site via [Cloudflare Workers Ass
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
 | `wrangler deploy` | Deploy to Cloudflare Workers |
+| `docker build -t mobile-card .` | Build the nginx image |
+| `docker run --rm -p 8080:80 mobile-card` | Serve the image locally |
