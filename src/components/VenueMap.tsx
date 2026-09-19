@@ -3,7 +3,44 @@ import { LOCATION_POINTS } from '../utils/constants/transportation';
 import { loadKakaoMaps } from '../utils/kakaoMaps';
 import type { KakaoMaps, LatLng, MapInstance, MapOverlay } from '../types/kakaoMaps';
 import type { MapPoint } from '../utils/types';
+import kakaoMapIcon from '../assets/map-apps/kakao-map.jpg';
+import naverMapIcon from '../assets/map-apps/naver-map.jpg';
+import tmapIcon from '../assets/map-apps/tmap.jpg';
 import styles from './VenueMap.module.css';
+
+type DirectionDestination = {
+  label: string;
+  lat: number;
+  lng: number;
+};
+
+const DEFAULT_DESTINATIONS: Record<'suseo' | 'parking', DirectionDestination> = {
+  suseo: { label: '수서역 6번 출구', lat: 37.486917430447576, lng: 127.10183073557539 },
+  // Until the exact entrance is confirmed, parking directions use the church location.
+  parking: { label: '세곡동 성당 주차장', lat: 37.4729550137162, lng: 127.112203236752 },
+};
+
+function routeApps(destination: DirectionDestination) {
+  const name = encodeURIComponent(destination.label);
+  const { lat, lng } = destination;
+  return [
+    {
+      name: '카카오맵',
+      icon: kakaoMapIcon,
+      href: `https://map.kakao.com/link/to/${name},${lat},${lng}`,
+    },
+    {
+      name: '네이버지도',
+      icon: naverMapIcon,
+      href: `nmap://route/car?dlat=${lat}&dlng=${lng}&dname=${name}&appname=com.ourwedinvitation`,
+    },
+    {
+      name: '티맵',
+      icon: tmapIcon,
+      href: `tmap://route?goalname=${name}&goalx=${lng}&goaly=${lat}`,
+    },
+  ];
+}
 
 function resolvePoint(maps: KakaoMaps, point: MapPoint): Promise<LatLng | null> {
   if (point.coordinates) return Promise.resolve(new maps.LatLng(point.coordinates.lat, point.coordinates.lng));
@@ -37,8 +74,7 @@ export default function VenueMap() {
   const container = useRef<HTMLDivElement>(null);
   const appKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY?.trim();
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>(appKey ? 'loading' : 'unavailable');
-  const [parkingRoute, setParkingRoute] = useState('https://map.kakao.com/link/to/1607311092');
-  const [suseoRoute, setSuseoRoute] = useState('https://map.kakao.com/link/to/10552075');
+  const [destinations, setDestinations] = useState(DEFAULT_DESTINATIONS);
 
   useEffect(() => {
     if (!appKey || !container.current) return;
@@ -57,12 +93,18 @@ export default function VenueMap() {
       const venue = resolved.find(entry => entry.point.id === 'venue');
       const suseo = resolved.find(entry => entry.point.id === 'suseo');
       if (suseo) {
-        setSuseoRoute(`https://map.kakao.com/link/to/${encodeURIComponent(suseo.point.label)},${suseo.position.getLat()},${suseo.position.getLng()}`);
+        setDestinations(current => ({
+          ...current,
+          suseo: { label: suseo.point.label, lat: suseo.position.getLat(), lng: suseo.position.getLng() },
+        }));
       }
       const parkingDestination = parking ?? venue;
       if (parkingDestination) {
         const { point, position } = parkingDestination;
-        setParkingRoute(`https://map.kakao.com/link/to/${encodeURIComponent(point.label)},${position.getLat()},${position.getLng()}`);
+        setDestinations(current => ({
+          ...current,
+          parking: { label: point.label, lat: position.getLat(), lng: position.getLng() },
+        }));
       }
       resolved.forEach(({ point, position }) => {
         bounds.extend(position);
@@ -103,7 +145,14 @@ export default function VenueMap() {
             <strong>수서역 6번 출구</strong>
             <small>예식 전 셔틀 탑승</small>
           </div>
-          <a className={styles.routeButton} href={suseoRoute} target="_blank" rel="noopener noreferrer" aria-label="수서역 6번 출구까지 길찾기">길찾기 ↗</a>
+          <div className={styles.routeApps} aria-label="수서역 6번 출구 길찾기 앱 선택">
+            {routeApps(destinations.suseo).map(app => (
+              <a className={styles.routeApp} href={app.href} key={app.name} target="_blank" rel="noopener noreferrer" aria-label={`${app.name}으로 수서역 6번 출구 길찾기`}>
+                <img src={app.icon} alt="" />
+                <span>{app.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
         <div className={styles.routeCard}>
           <span className={styles.routeBadge}>P</span>
@@ -111,7 +160,14 @@ export default function VenueMap() {
             <strong>세곡동 성당 주차장</strong>
             <small>{LOCATION_POINTS.find(point => point.id === 'parking')?.coordinates ? '주차장 입구' : '성당 주소 기준'}</small>
           </div>
-          <a className={styles.routeButton} href={parkingRoute} target="_blank" rel="noopener noreferrer" aria-label="세곡동 성당 주차장 방향 길찾기">길찾기 ↗</a>
+          <div className={styles.routeApps} aria-label="세곡동 성당 주차장 길찾기 앱 선택">
+            {routeApps(destinations.parking).map(app => (
+              <a className={styles.routeApp} href={app.href} key={app.name} target="_blank" rel="noopener noreferrer" aria-label={`${app.name}으로 세곡동 성당 주차장 길찾기`}>
+                <img src={app.icon} alt="" />
+                <span>{app.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>

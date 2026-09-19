@@ -45,10 +45,11 @@
 }
 
 .routeCard {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: .65rem;
-  min-height: 64px;
+  min-height: 84px;
   padding: .7rem .8rem;
   border: 1px solid #e3e5e7;
   border-radius: 12px;
@@ -72,15 +73,30 @@
 .routeText { flex: 1; min-width: 0; }
 .routeText strong { display: block; font-size: .78rem; line-height: 1.5; word-break: keep-all; }
 .routeText small { display: block; color: #6b7783; font-size: .68rem; line-height: 1.5; }
-.routeButton {
-  flex-shrink: 0;
-  padding: .55rem .7rem;
+.routeApps {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .4rem;
+  padding-top: .05rem;
+}
+
+.routeApp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  min-height: 2.1rem;
+  padding: .35rem .25rem;
+  border: 1px solid #d9e0e6;
   border-radius: 8px;
-  color: #fff;
-  background: #2b4059;
-  font-size: .72rem;
+  color: #2b4059;
+  background: #fff;
+  font-size: .65rem;
   font-weight: 600;
   white-space: nowrap;
 }
-.routeButton:hover { background: #435e78; }
-.routeButton:focus-visible { outline: 2px solid #2b4059; outline-offset: 3px; }
+
+.routeApp:hover { border-color: #9eacb9; background: #f5f8fa; }
+.routeApp:focus-visible { outline: 2px solid #2b4059; outline-offset: 3px; }
+.routeApp img { width: 1.18rem; height: 1.18rem; border-radius: .3rem; }
