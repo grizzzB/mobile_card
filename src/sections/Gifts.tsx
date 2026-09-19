@@ -35,8 +35,6 @@ const groomAccounts: AccountItem[] = [
 
 const brideAccounts: AccountItem[] = [
   ...buildAccounts(WEDDING_CONFIG.bride.self, '신부'),
-  ...buildAccounts(WEDDING_CONFIG.bride.father, '신부 아버지'),
-  ...buildAccounts(WEDDING_CONFIG.bride.mother, '신부 어머니'),
 ];
 
 function AccountGroup({ label, accounts }: { label: string; accounts: AccountItem[] }) {
