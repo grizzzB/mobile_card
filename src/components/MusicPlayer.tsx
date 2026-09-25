@@ -62,7 +62,7 @@ export default function MusicPlayer() {
 
     return (
         <>
-            <audio ref={audioRef} src={WEDDING_CONFIG.musicSrc} preload="auto" />
+            <audio ref={audioRef} src={WEDDING_CONFIG.musicSrc} preload="auto" autoPlay />
             <button
                 className={`${styles.musicBtn} ${visible ? styles.visible : ''}`}
                 onClick={toggle}
