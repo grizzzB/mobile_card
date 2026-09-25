@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { LOCATION_POINTS } from '../utils/constants/transportation';
+import { LOCATION_POINTS, PUBLIC_PARKING } from '../utils/constants/transportation';
 import { loadKakaoMaps } from '../utils/kakaoMaps';
 import { openTmap, tmapRouteHref } from '../utils/openTmap';
-import type { KakaoMaps, LatLng, MapInstance, MapOverlay } from '../types/kakaoMaps';
+import type { KakaoMaps, LatLng, MapInstance, MapMarker, MarkerImage } from '../types/kakaoMaps';
 import type { MapPoint } from '../utils/types';
 import kakaoMapIcon from '../assets/map-apps/kakao-map.jpg';
 import naverMapIcon from '../assets/map-apps/naver-map.jpg';
 import tmapIcon from '../assets/map-apps/tmap.jpg';
+import churchMarker from '../assets/map-apps/church-marker.png';
+import parkingMarker from '../assets/map-apps/parking-marker.png';
+import subwayMarker from '../assets/map-apps/subway-marker.png';
 import styles from './VenueMap.module.css';
 
 type DirectionDestination = {
@@ -29,10 +32,42 @@ type RouteApp =
       href: string;
     };
 
-const DEFAULT_DESTINATIONS: Record<'suseo' | 'parking', DirectionDestination> = {
+const MAP_MARKER_IDS = new Set(['venue', 'publicParking', 'suseo']);
+
+/** Custom pin images matched to each map place. */
+const PLACE_MARKER_SRC: Record<string, string> = {
+  venue: churchMarker,
+  publicParking: parkingMarker,
+  suseo: subwayMarker,
+};
+
+// Display size for 1122×1402 pin assets; grows when zoomed in (smaller Kakao level).
+function markerDisplaySize(level: number): { width: number; height: number; offsetY: number } {
+  if (level <= 3) return { width: 58, height: 72, offsetY: 66 };
+  if (level <= 5) return { width: 50, height: 62, offsetY: 57 };
+  return { width: 44, height: 55, offsetY: 50 };
+}
+
+function createPlaceMarkerImage(maps: KakaoMaps, pointId: string, level: number): MarkerImage | undefined {
+  const src = PLACE_MARKER_SRC[pointId];
+  if (!src) return undefined;
+  const { width, height, offsetY } = markerDisplaySize(level);
+  return new maps.MarkerImage(
+    src,
+    new maps.Size(width, height),
+    { offset: new maps.Point(width / 2, offsetY) },
+  );
+}
+
+const DEFAULT_DESTINATIONS: Record<'suseo' | 'parking' | 'publicParking', DirectionDestination> = {
   suseo: { label: '수서역 6번 출구', lat: 37.486917430447576, lng: 127.10183073557539 },
   // Until the exact entrance is confirmed, parking directions use the church location.
   parking: { label: '세곡동 성당 주차장', lat: 37.4729550137162, lng: 127.112203236752 },
+  publicParking: {
+    label: PUBLIC_PARKING.label,
+    lat: PUBLIC_PARKING.lat,
+    lng: PUBLIC_PARKING.lng,
+  },
 };
 
 function routeApps(destination: DirectionDestination): RouteApp[] {
@@ -125,15 +160,26 @@ function resolvePoint(maps: KakaoMaps, point: MapPoint): Promise<LatLng | null> 
 
 export default function VenueMap() {
   const container = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<MapInstance | null>(null);
+  const mapsRef = useRef<KakaoMaps | null>(null);
   const appKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY?.trim();
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>(appKey ? 'loading' : 'unavailable');
   const [destinations, setDestinations] = useState(DEFAULT_DESTINATIONS);
+
+  const focusDestination = (destination: DirectionDestination) => {
+    const map = mapRef.current;
+    const maps = mapsRef.current;
+    if (!map || !maps) return;
+    map.setCenter(new maps.LatLng(destination.lat, destination.lng));
+    map.setLevel(3);
+    container.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
 
   useEffect(() => {
     if (!appKey || !container.current) return;
     let cancelled = false;
     let resizeObserver: ResizeObserver | undefined;
-    const overlays: MapOverlay[] = [];
+    const pinMarkers: MapMarker[] = [];
     const element = container.current;
     loadKakaoMaps(appKey).then(async maps => {
       const positions = await Promise.all(LOCATION_POINTS.map(async point => ({ point, position: await resolvePoint(maps, point) })));
@@ -141,44 +187,114 @@ export default function VenueMap() {
       const resolved = positions.filter((entry): entry is { point: MapPoint; position: LatLng } => entry.position !== null);
       if (!resolved.length) throw new Error('No confirmed map positions');
       const map: MapInstance = new maps.Map(element, { center: resolved[0].position, level: 4, scrollwheel: false });
-      const bounds = new maps.LatLngBounds();
-      const parking = resolved.find(entry => entry.point.id === 'parking');
+      map.addControl(new maps.ZoomControl(), maps.ControlPosition.TOPRIGHT);
+      mapRef.current = map;
+      mapsRef.current = maps;
+
       const venue = resolved.find(entry => entry.point.id === 'venue');
       const suseo = resolved.find(entry => entry.point.id === 'suseo');
-      if (suseo) {
+      const publicParking = resolved.find(entry => entry.point.id === 'publicParking');
+
+      // Prefer Kakao-resolved positions; fall back so 수서역/공영주차장 always appear.
+      const mapMarkers = LOCATION_POINTS
+        .filter(point => MAP_MARKER_IDS.has(point.id))
+        .map(point => {
+          const found = resolved.find(entry => entry.point.id === point.id);
+          if (found) return found;
+          if (point.id === 'suseo') {
+            return {
+              point,
+              position: new maps.LatLng(DEFAULT_DESTINATIONS.suseo.lat, DEFAULT_DESTINATIONS.suseo.lng),
+            };
+          }
+          if (point.id === 'publicParking') {
+            return {
+              point,
+              position: new maps.LatLng(PUBLIC_PARKING.lat, PUBLIC_PARKING.lng),
+            };
+          }
+          return null;
+        })
+        .filter((entry): entry is { point: MapPoint; position: LatLng } => entry !== null);
+
+      const suseoMarker = suseo ?? mapMarkers.find(entry => entry.point.id === 'suseo');
+      if (suseoMarker) {
         setDestinations(current => ({
           ...current,
-          suseo: { label: suseo.point.label, lat: suseo.position.getLat(), lng: suseo.position.getLng() },
+          suseo: {
+            label: suseoMarker.point.label,
+            lat: suseoMarker.position.getLat(),
+            lng: suseoMarker.position.getLng(),
+          },
         }));
       }
-      const parkingDestination = parking ?? venue;
-      if (parkingDestination) {
-        const { point, position } = parkingDestination;
+      if (venue) {
         setDestinations(current => ({
           ...current,
-          parking: { label: point.label, lat: position.getLat(), lng: position.getLng() },
+          parking: { label: '세곡동 성당 주차장', lat: venue.position.getLat(), lng: venue.position.getLng() },
         }));
       }
-      resolved.forEach(({ point, position }) => {
+      if (publicParking) {
+        setDestinations(current => ({
+          ...current,
+          publicParking: {
+            label: publicParking.point.label,
+            lat: publicParking.position.getLat(),
+            lng: publicParking.position.getLng(),
+          },
+        }));
+      }
+
+      const bounds = new maps.LatLngBounds();
+      const placed: { point: MapPoint; pin: MapMarker }[] = [];
+      mapMarkers.forEach(({ point, position }) => {
         bounds.extend(position);
-        const label = document.createElement('span');
-        label.className = styles.marker;
-        label.textContent = `${point.badge} · ${point.label}`;
-        overlays.push(new maps.CustomOverlay({ map, position, content: label, yAnchor: 1 }));
+        const image = createPlaceMarkerImage(maps, point.id, map.getLevel());
+        const pin = new maps.Marker({
+          position,
+          ...(image ? { image } : {}),
+          title: point.label,
+        });
+        pin.setMap(map);
+        pinMarkers.push(pin);
+        placed.push({ point, pin });
       });
+
+      let lastMarkerTier = -1;
+      const syncMarkerSizes = () => {
+        const level = map.getLevel();
+        const tier = level <= 3 ? 0 : level <= 5 ? 1 : 2;
+        if (tier === lastMarkerTier) return;
+        lastMarkerTier = tier;
+        placed.forEach(({ point, pin }) => {
+          const image = createPlaceMarkerImage(maps, point.id, level);
+          if (image) pin.setImage(image);
+        });
+      };
+
       const showAll = () => {
-        if (resolved.length > 1) map.setBounds(bounds, 55, 75, 55, 75);
-        else { map.setCenter(resolved[0].position); map.setLevel(3); }
+        if (mapMarkers.length > 1) {
+          // Fit all markers; padding keeps tall pins inside — matches ~500m screenshot zoom.
+          map.setBounds(bounds, 48, 36, 36, 36);
+        } else {
+          map.setCenter(mapMarkers[0].position);
+          map.setLevel(3);
+        }
+        syncMarkerSizes();
       };
       showAll();
-      resizeObserver = new ResizeObserver(() => { map.relayout(); showAll(); });
+      maps.event.addListener(map, 'zoom_changed', syncMarkerSizes);
+      // Relayout only — do not re-fit, so tapping a place name can keep its zoom.
+      resizeObserver = new ResizeObserver(() => { map.relayout(); });
       resizeObserver.observe(element);
       setStatus('ready');
     }).catch(() => { if (!cancelled) setStatus('unavailable'); });
     return () => {
       cancelled = true;
       resizeObserver?.disconnect();
-      overlays.forEach(overlay => overlay.setMap(null));
+      pinMarkers.forEach(marker => marker.setMap(null));
+      mapRef.current = null;
+      mapsRef.current = null;
       element.replaceChildren();
     };
   }, [appKey]);
@@ -186,16 +302,23 @@ export default function VenueMap() {
   return (
     <div className={styles.section} id="location-map">
       <div className={styles.frame}>
-        <div ref={container} className={styles.map} aria-label="성당·주차장·수서역 지도" />
+        <div ref={container} className={styles.map} aria-label="성당·공영주차장·수서역 지도" />
         {status !== 'ready' && (
           <div className={styles.placeholder} role="img" aria-label="지도 표시 영역" />
         )}
       </div>
       <div className={styles.routeActions}>
         <div className={styles.routeCard}>
-          <span className={styles.routeBadge}>6</span>
+          <span className={styles.routeBadge}>🚇</span>
           <div className={styles.routeText}>
-            <strong>수서역 6번 출구</strong>
+            <button
+              type="button"
+              className={styles.routeTitle}
+              onClick={() => focusDestination(destinations.suseo)}
+              disabled={status !== 'ready'}
+            >
+              수서역 6번 출구
+            </button>
             <small>예식 전 셔틀 탑승</small>
           </div>
           <div className={styles.routeApps} aria-label="수서역 6번 출구 길찾기 앱 선택">
@@ -209,10 +332,17 @@ export default function VenueMap() {
           </div>
         </div>
         <div className={styles.routeCard}>
-          <span className={styles.routeBadge}>P</span>
+          <span className={styles.routeBadge}>⛪</span>
           <div className={styles.routeText}>
-            <strong>세곡동 성당 주차장</strong>
-            <small>{LOCATION_POINTS.find(point => point.id === 'parking')?.coordinates ? '주차장 입구' : '성당 주소 기준'}</small>
+            <button
+              type="button"
+              className={styles.routeTitle}
+              onClick={() => focusDestination(destinations.parking)}
+              disabled={status !== 'ready'}
+            >
+              세곡동 성당 주차장
+            </button>
+            <small>주차 가능 약 50대 · {LOCATION_POINTS.find(point => point.id === 'parking')?.coordinates ? '주차장 입구' : '성당 인근'}</small>
           </div>
           <div className={styles.routeApps} aria-label="세곡동 성당 주차장 길찾기 앱 선택">
             {routeApps(destinations.parking).map(app => (
@@ -220,6 +350,29 @@ export default function VenueMap() {
                 key={`parking-${app.name}`}
                 app={app}
                 ariaLabel={`${app.name}으로 세곡동 성당 주차장 길찾기`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className={styles.routeCard}>
+          <span className={styles.routeBadge}>🅿️</span>
+          <div className={styles.routeText}>
+            <button
+              type="button"
+              className={styles.routeTitle}
+              onClick={() => focusDestination(destinations.publicParking)}
+              disabled={status !== 'ready'}
+            >
+              {PUBLIC_PARKING.label}
+            </button>
+            <small>주차 가능 약 {PUBLIC_PARKING.capacity}면 · 성당 인근 공영주차장</small>
+          </div>
+          <div className={styles.routeApps} aria-label={`${PUBLIC_PARKING.label} 길찾기 앱 선택`}>
+            {routeApps(destinations.publicParking).map(app => (
+              <RouteAppControl
+                key={`publicParking-${app.name}`}
+                app={app}
+                ariaLabel={`${app.name}으로 ${PUBLIC_PARKING.label} 길찾기`}
               />
             ))}
           </div>

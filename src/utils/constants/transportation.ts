@@ -1,5 +1,16 @@
 import type { Bus, MapPoint, NavigationApp, ParkingLot, Shuttle, Subway } from "../types";
 
+/** Nearby public parking used for directions links. */
+export const PUBLIC_PARKING = {
+	label: '밤고개로21길 공영주차장',
+	lat: 37.4736882,
+	lng: 127.1145703,
+	capacity: 109,
+	address: '서울 강남구 밤고개로21길 71',
+} as const;
+
+const publicParkingName = encodeURIComponent(PUBLIC_PARKING.label);
+
 export const DIRECTIONS: {
 	subway: Subway[];
 	bus: Bus[];
@@ -8,7 +19,21 @@ export const DIRECTIONS: {
 } = {
 	subway: [],
 	bus: [],
-	parking: [],
+	parking: [
+		{
+			name: '세곡동 성당 주차장',
+			address: '주차 가능 약 50대 · 성당 내 주차장',
+		},
+		{
+			name: PUBLIC_PARKING.label,
+			address: `주차 가능 약 ${PUBLIC_PARKING.capacity}면 · ${PUBLIC_PARKING.address}`,
+			nav: {
+				kakao: `https://map.kakao.com/link/to/${publicParkingName},${PUBLIC_PARKING.lat},${PUBLIC_PARKING.lng}`,
+				naver: `nmap://route/car?dlat=${PUBLIC_PARKING.lat}&dlng=${PUBLIC_PARKING.lng}&dname=${publicParkingName}&appname=com.ourwedinvitation`,
+				tmap: `tmap://route?goalname=${publicParkingName}&goalx=${PUBLIC_PARKING.lng}&goaly=${PUBLIC_PARKING.lat}`,
+			},
+		},
+	],
 	shuttle: {
 		trips: [
 			{
@@ -27,20 +52,28 @@ export const DIRECTIONS: {
 
 export const LOCATION_POINTS: MapPoint[] = [
 	{
-		id: 'venue', badge: '성당', label: '세곡동 성당',
+		id: 'venue', badge: '⛪', label: '세곡동 성당',
 		description: '예식 장소 · 예식 후 셔틀 탑승',
 		query: '세곡동성당', placeId: '1607311092',
 	},
 	{
-		id: 'parking', badge: 'P', label: '성당 주차장',
-		description: '성당 주차장',
-		// Add confirmed entrance coordinates here; do not substitute the church center.
+		id: 'parking', badge: '⛪', label: '성당 주차장',
+		description: '성당 주차장 · 약 50대',
+		// Marker is placed near the church when entrance coords are unknown.
 	},
 	{
-		id: 'suseo', badge: '6', label: '수서역 6번 출구',
+		id: 'publicParking', badge: '🅿️', label: PUBLIC_PARKING.label,
+		description: `인근 공영주차장 · 약 ${PUBLIC_PARKING.capacity}면`,
+		coordinates: { lat: PUBLIC_PARKING.lat, lng: PUBLIC_PARKING.lng },
+		address: PUBLIC_PARKING.address,
+	},
+	{
+		id: 'suseo', badge: '🚇', label: '수서역 6번 출구',
 		description: '예식 전 · 셔틀 탑승 장소',
 		query: '수서역 6번출구', matchName: '수서역.*6번출구',
 		placeId: '10552075',
+		// Fallback when Places lookup fails — keeps 수서역 on the initial map.
+		coordinates: { lat: 37.486917430447576, lng: 127.10183073557539 },
 	},
 ];
 

@@ -24,12 +24,14 @@
 
 .marker {
   display: block;
-  padding: .5rem .7rem;
-  border: 1px solid #fff;
+  padding: .45rem .65rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 10px;
-  color: white;
-  background: #2b4059;
-  box-shadow: 0 2px 8px #0003;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(43, 64, 89, 0.62);
+  box-shadow: 0 2px 8px #0002;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   white-space: nowrap;
   font: 600 12px/1.4 var(--sans);
 }
@@ -69,19 +71,55 @@
   border-radius: 50%;
   color: #2b4059;
   background: #eaf0f5;
-  font-size: .72rem;
+  font-size: .95rem;
   font-weight: 700;
+  line-height: 1;
 }
 
 .routeText { flex: 1; min-width: 0; }
-.routeText strong { display: block; font-size: .78rem; line-height: 1.5; word-break: keep-all; }
 .routeText small { display: block; color: #6b7783; font-size: .68rem; line-height: 1.5; }
+
+.routeTitle {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: #2b4059;
+  background: none;
+  font: 600 .78rem/1.5 var(--sans);
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.15em;
+  word-break: keep-all;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.routeTitle:hover:not(:disabled),
+.routeTitle:focus-visible:not(:disabled) {
+  text-decoration-color: currentColor;
+}
+
+.routeTitle:disabled {
+  cursor: default;
+}
+
+.routeTitle:focus-visible {
+  outline: 2px solid #2b4059;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 .routeApps {
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: .4rem;
   padding-top: .05rem;
+}
+
+.routeAppsSingle {
+  grid-template-columns: 1fr;
 }
 
 .routeApp {
