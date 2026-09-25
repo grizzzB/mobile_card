@@ -51,9 +51,17 @@ export const WEDDING_CONFIG: {
 		},
 		father: {
 			name: "이향만",
+			bank: {
+				name: "우리은행",
+				accountNumber: "512-461925-02-001",
+			},
 		},
 		mother: {
 			name: "안순영",
+			bank: {
+				name: "우리은행",
+				accountNumber: "1002-751-899437",
+			},
 		},
 	},
 	venue: {

@@ -80,7 +80,7 @@
   padding: 2rem 1.5rem 3rem;
   position: relative;
   animation: modalIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--sans);
 }
 
 .modalClosing {

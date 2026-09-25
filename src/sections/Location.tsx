@@ -3,6 +3,7 @@ import { useScrollFade } from '../hooks/useScrollFade';
 import styles from './Location.module.css';
 import { WEDDING_CONFIG } from '../utils/constants/weddingInfo';
 import { DIRECTIONS } from '../utils/constants/transportation';
+import { openTmap } from '../utils/openTmap';
 import Collapsible from '../components/Collapsible';
 import VenueMap from '../components/VenueMap';
 
@@ -106,7 +107,15 @@ export default function Location() {
                             </a>
                           )}
                           {item.nav.tmap && (
-                            <a href={item.nav.tmap} target="_blank" rel="noopener noreferrer" className={styles.parkingNavBtn}>
+                            <a
+                              href={item.nav.tmap}
+                              rel="noopener noreferrer"
+                              className={styles.parkingNavBtn}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                openTmap(item.nav!.tmap!);
+                              }}
+                            >
                               <img src={`${import.meta.env.BASE_URL}assets/tmap.svg`} alt="티맵" className={styles.parkingNavIcon} />
                               티맵
                             </a>

@@ -28,12 +28,14 @@ const buildAccounts = (
 };
 
 const groomAccounts: AccountItem[] = [
+  ...buildAccounts(WEDDING_CONFIG.groom.father, '아버지'),
+  ...buildAccounts(WEDDING_CONFIG.groom.mother, '어머니'),
   ...buildAccounts(WEDDING_CONFIG.groom.self, '신랑'),
-  ...buildAccounts(WEDDING_CONFIG.groom.father, '신랑 아버지'),
-  ...buildAccounts(WEDDING_CONFIG.groom.mother, '신랑 어머니'),
 ];
 
 const brideAccounts: AccountItem[] = [
+  ...buildAccounts(WEDDING_CONFIG.bride.father, '아버지'),
+  ...buildAccounts(WEDDING_CONFIG.bride.mother, '어머니'),
   ...buildAccounts(WEDDING_CONFIG.bride.self, '신부'),
 ];
 

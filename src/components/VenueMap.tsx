@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { LOCATION_POINTS } from '../utils/constants/transportation';
 import { loadKakaoMaps } from '../utils/kakaoMaps';
+import { openTmap, tmapRouteHref } from '../utils/openTmap';
 import type { KakaoMaps, LatLng, MapInstance, MapOverlay } from '../types/kakaoMaps';
 import type { MapPoint } from '../utils/types';
 import kakaoMapIcon from '../assets/map-apps/kakao-map.jpg';
@@ -14,15 +15,23 @@ type DirectionDestination = {
   lng: number;
 };
 
+type RouteApp = {
+  name: string;
+  icon: string;
+  href: string;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
+};
+
 const DEFAULT_DESTINATIONS: Record<'suseo' | 'parking', DirectionDestination> = {
   suseo: { label: '수서역 6번 출구', lat: 37.486917430447576, lng: 127.10183073557539 },
   // Until the exact entrance is confirmed, parking directions use the church location.
   parking: { label: '세곡동 성당 주차장', lat: 37.4729550137162, lng: 127.112203236752 },
 };
 
-function routeApps(destination: DirectionDestination) {
+function routeApps(destination: DirectionDestination): RouteApp[] {
   const name = encodeURIComponent(destination.label);
   const { lat, lng } = destination;
+  const tmapHref = tmapRouteHref(destination);
   return [
     {
       name: '카카오맵',
@@ -37,7 +46,11 @@ function routeApps(destination: DirectionDestination) {
     {
       name: '티맵',
       icon: tmapIcon,
-      href: `tmap://route?goalname=${name}&goalx=${lng}&goaly=${lat}`,
+      href: tmapHref,
+      onClick: (event) => {
+        event.preventDefault();
+        openTmap(tmapHref);
+      },
     },
   ];
 }
@@ -147,7 +160,15 @@ export default function VenueMap() {
           </div>
           <div className={styles.routeApps} aria-label="수서역 6번 출구 길찾기 앱 선택">
             {routeApps(destinations.suseo).map(app => (
-              <a className={styles.routeApp} href={app.href} key={app.name} target="_blank" rel="noopener noreferrer" aria-label={`${app.name}으로 수서역 6번 출구 길찾기`}>
+              <a
+                className={styles.routeApp}
+                href={app.href}
+                key={app.name}
+                target={app.onClick ? undefined : '_blank'}
+                rel="noopener noreferrer"
+                onClick={app.onClick}
+                aria-label={`${app.name}으로 수서역 6번 출구 길찾기`}
+              >
                 <img src={app.icon} alt="" />
                 <span>{app.name}</span>
               </a>
@@ -162,7 +183,15 @@ export default function VenueMap() {
           </div>
           <div className={styles.routeApps} aria-label="세곡동 성당 주차장 길찾기 앱 선택">
             {routeApps(destinations.parking).map(app => (
-              <a className={styles.routeApp} href={app.href} key={app.name} target="_blank" rel="noopener noreferrer" aria-label={`${app.name}으로 세곡동 성당 주차장 길찾기`}>
+              <a
+                className={styles.routeApp}
+                href={app.href}
+                key={app.name}
+                target={app.onClick ? undefined : '_blank'}
+                rel="noopener noreferrer"
+                onClick={app.onClick}
+                aria-label={`${app.name}으로 세곡동 성당 주차장 길찾기`}
+              >
                 <img src={app.icon} alt="" />
                 <span>{app.name}</span>
               </a>

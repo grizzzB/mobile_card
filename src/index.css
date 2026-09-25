@@ -1,4 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Pinyon+Script&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Pinyon+Script&display=swap');
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --text: #333;
@@ -7,7 +15,7 @@
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
 
-  --sans: 'Noto Sans KR', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --sans: 'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --serif: 'PT Serif', 'Times New Roman', serif;
   --script: 'Pinyon Script', cursive;
   --heading: var(--sans);
