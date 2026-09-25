@@ -42,15 +42,15 @@ src/
 │   └── types.ts                # Shared TypeScript types
 public/
 └── assets/            # Cover images, SVG icons, background music
-Dockerfile             # Multi-stage Node build + nginx static server
-nginx.conf             # SPA routing and static asset caching
+docker-compose.yml     # Optional local Vite preview in Docker
+.github/workflows/     # GitHub Pages deploy
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20.19+ (Vite 8). CI and Docker use Node.js 24.
+- Node.js 20.19+ (Vite 8). CI uses Node.js 24.
 - npm
 
 ### Installation
@@ -219,76 +219,32 @@ VITE_BASE_PATH=/mobile_card/ npm run preview -- --host 0.0.0.0
 
 Open `http://localhost:4173/mobile_card/`.
 
-## Deployment (Docker)
+## Local preview (no rebuild on every edit)
 
-The `Dockerfile` builds the Vite app with Node.js 24 and serves `dist` with nginx on port 80. `nginx.conf` falls back to `index.html` so client-side navigation still works.
-
-Pass public Vite values as build arguments (they are baked into the JS bundle):
+Prefer Vite (hot reload). Put `VITE_KAKAO_MAP_APP_KEY` in `.env`, then either:
 
 ```bash
-docker build \
-  --build-arg VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx \
-  --build-arg VITE_KAKAO_MAP_APP_KEY=your_kakao_javascript_key \
-  -t mobile-card .
+npm install
+npm run dev
 ```
 
-`VITE_BASE_PATH` defaults to `/`. Override it only if the container is served under a subpath.
-
-Run the image:
+or with Docker (bind-mounts the repo — code and `public/map-markers` update live):
 
 ```bash
-docker run --rm -p 8080:80 mobile-card
+docker compose up
 ```
 
-Open `http://localhost:8080`. Register that origin (or the real domain) in Kakao Developers if the map should load.
+Open `http://localhost:5173`. Register that origin in Kakao Developers.
 
-Do not pass Admin or REST API keys. `.env` is excluded from the build context via `.dockerignore`.
-
-## Deployment (Cloudflare Workers)
-
-The project is configured to deploy as a static site via [Cloudflare Workers Assets](https://developers.cloudflare.com/workers/static-assets/). The `wrangler.jsonc` at the project root defines the deployment:
-
-```jsonc
-{
-  "name": "wed-inv",
-  "compatibility_date": "2026-05-18",
-  "placement": { "region": "aws:ap-northeast-2" },  // Seoul region
-  "assets": { "directory": "./dist" }               // serves the Vite build output
-}
-```
-
-### Deploy steps
-
-1. Install the [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/):
-   ```bash
-   npm install -g wrangler
-   ```
-
-2. Authenticate with your Cloudflare account:
-   ```bash
-   wrangler login
-   ```
-
-3. Build the app:
-   ```bash
-   npm run build
-   ```
-
-4. Deploy:
-   ```bash
-   wrangler deploy
-   ```
-
-> The `dist/` directory is gitignored. Always run `npm run build` before deploying.
+Map pin images live in `public/map-markers/` and are loaded by URL (not bundled into JS), so swapping those files does not require a rebuild.
 
 ## Scripts
 
 | Command | Description |
 |---|---|
 | `npm run dev` | Start local dev server |
+| `npm run dev:docker` | Same via Docker Compose (bind-mount) |
 | `npm run build` | Type-check and build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
-| `wrangler deploy` | Deploy to Cloudflare Workers |
-| `docker build -t mobile-card .` | Build the nginx image |
-| `docker run --rm -p 8080:80 mobile-card` | Serve the image locally |
+| `docker compose up` | Local Vite preview in Docker |

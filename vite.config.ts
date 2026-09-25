@@ -6,5 +6,14 @@ export default defineConfig(({ mode }) => {
   return {
     base: env.VITE_BASE_PATH || '/',
     plugins: [react()],
+    server: {
+      host: true,
+      port: 5173,
+      watch: {
+        // Reliable file watching when the project is bind-mounted into Docker on Windows.
+        usePolling: true,
+        interval: 300,
+      },
+    },
   }
 })

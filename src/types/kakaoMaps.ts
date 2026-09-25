@@ -14,6 +14,8 @@ export interface MapInstance {
   setCenter(point: LatLng): void;
   setLevel(level: number): void;
   getLevel(): number;
+  setZoomable(zoomable: boolean): void;
+  setDraggable(draggable: boolean): void;
   relayout(): void;
   addControl(control: MapControl, position: unknown): void;
 }

@@ -9,8 +9,6 @@ export const PUBLIC_PARKING = {
 	address: '서울 강남구 밤고개로21길 71',
 } as const;
 
-const publicParkingName = encodeURIComponent(PUBLIC_PARKING.label);
-
 export const DIRECTIONS: {
 	subway: Subway[];
 	bus: Bus[];
@@ -19,21 +17,9 @@ export const DIRECTIONS: {
 } = {
 	subway: [],
 	bus: [],
-	parking: [
-		{
-			name: '세곡동 성당 주차장',
-			address: '주차 가능 약 50대 · 성당 내 주차장',
-		},
-		{
-			name: PUBLIC_PARKING.label,
-			address: `주차 가능 약 ${PUBLIC_PARKING.capacity}면 · ${PUBLIC_PARKING.address}`,
-			nav: {
-				kakao: `https://map.kakao.com/link/to/${publicParkingName},${PUBLIC_PARKING.lat},${PUBLIC_PARKING.lng}`,
-				naver: `nmap://route/car?dlat=${PUBLIC_PARKING.lat}&dlng=${PUBLIC_PARKING.lng}&dname=${publicParkingName}&appname=com.ourwedinvitation`,
-				tmap: `tmap://route?goalname=${publicParkingName}&goalx=${PUBLIC_PARKING.lng}&goaly=${PUBLIC_PARKING.lat}`,
-			},
-		},
-	],
+	// Empty hides the Location "주차 안내" block; map route cards still use PUBLIC_PARKING.
+	// Restore entries here when the accordion section is needed again.
+	parking: [],
 	shuttle: {
 		trips: [
 			{

@@ -7,9 +7,6 @@ import type { MapPoint } from '../utils/types';
 import kakaoMapIcon from '../assets/map-apps/kakao-map.jpg';
 import naverMapIcon from '../assets/map-apps/naver-map.jpg';
 import tmapIcon from '../assets/map-apps/tmap.jpg';
-import churchMarker from '../assets/map-apps/church-marker.png';
-import parkingMarker from '../assets/map-apps/parking-marker.png';
-import subwayMarker from '../assets/map-apps/subway-marker.png';
 import styles from './VenueMap.module.css';
 
 type DirectionDestination = {
@@ -34,11 +31,12 @@ type RouteApp =
 
 const MAP_MARKER_IDS = new Set(['venue', 'publicParking', 'suseo']);
 
-/** Custom pin images matched to each map place. */
+/** Served from public/map-markers — swap files without rebuilding the app bundle. */
+const markerSrc = (file: string) => `${import.meta.env.BASE_URL}map-markers/${file}`;
 const PLACE_MARKER_SRC: Record<string, string> = {
-  venue: churchMarker,
-  publicParking: parkingMarker,
-  suseo: subwayMarker,
+  venue: markerSrc('church-marker.png'),
+  publicParking: markerSrc('parking-marker.png'),
+  suseo: markerSrc('subway-marker.png'),
 };
 
 // Display size for 1122×1402 pin assets; grows when zoomed in (smaller Kakao level).
@@ -165,6 +163,19 @@ export default function VenueMap() {
   const appKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY?.trim();
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>(appKey ? 'loading' : 'unavailable');
   const [destinations, setDestinations] = useState(DEFAULT_DESTINATIONS);
+  const [touchMapOpen, setTouchMapOpen] = useState(false);
+  const [needsTouchUnlock, setNeedsTouchUnlock] = useState(false);
+
+  const setMapGesture = (enabled: boolean) => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setZoomable(enabled);
+    map.setDraggable(enabled);
+  };
+
+  const isHoverDevice = () =>
+    typeof window !== 'undefined'
+    && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   const focusDestination = (destination: DirectionDestination) => {
     const map = mapRef.current;
@@ -174,6 +185,24 @@ export default function VenueMap() {
     map.setLevel(3);
     container.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
+
+  const openTouchMap = () => {
+    setTouchMapOpen(true);
+    setMapGesture(true);
+  };
+
+  const closeTouchMap = () => {
+    setTouchMapOpen(false);
+    setMapGesture(false);
+  };
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+    const sync = () => setNeedsTouchUnlock(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   useEffect(() => {
     if (!appKey || !container.current) return;
@@ -186,7 +215,14 @@ export default function VenueMap() {
       if (cancelled) return;
       const resolved = positions.filter((entry): entry is { point: MapPoint; position: LatLng } => entry.position !== null);
       if (!resolved.length) throw new Error('No confirmed map positions');
-      const map: MapInstance = new maps.Map(element, { center: resolved[0].position, level: 4, scrollwheel: false });
+      const map: MapInstance = new maps.Map(element, {
+        center: resolved[0].position,
+        level: 4,
+        // Wheel/pinch off by default; enabled on desktop hover or mobile unlock.
+        scrollwheel: false,
+      });
+      map.setZoomable(false);
+      map.setDraggable(false);
       map.addControl(new maps.ZoomControl(), maps.ControlPosition.TOPRIGHT);
       mapRef.current = map;
       mapsRef.current = maps;
@@ -301,10 +337,34 @@ export default function VenueMap() {
 
   return (
     <div className={styles.section} id="location-map">
-      <div className={styles.frame}>
+      <div
+        className={styles.frame}
+        onMouseEnter={() => { if (isHoverDevice()) setMapGesture(true); }}
+        onMouseLeave={() => { if (isHoverDevice()) setMapGesture(false); }}
+      >
         <div ref={container} className={styles.map} aria-label="성당·공영주차장·수서역 지도" />
         {status !== 'ready' && (
           <div className={styles.placeholder} role="img" aria-label="지도 표시 영역" />
+        )}
+        {status === 'ready' && needsTouchUnlock && !touchMapOpen && (
+          <button
+            type="button"
+            className={styles.mapUnlock}
+            onClick={openTouchMap}
+            aria-label="지도를 터치하여 확대·이동하기"
+          >
+            <span>지도를 보려면 탭하세요</span>
+            <small>두 손가락으로 확대 · 드래그로 이동</small>
+          </button>
+        )}
+        {status === 'ready' && needsTouchUnlock && touchMapOpen && (
+          <button
+            type="button"
+            className={styles.mapLock}
+            onClick={closeTouchMap}
+          >
+            스크롤로 돌아가기
+          </button>
         )}
       </div>
       <div className={styles.routeActions}>

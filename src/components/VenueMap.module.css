@@ -22,6 +22,53 @@
   background: #f5f4f0;
 }
 
+.mapUnlock {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  gap: .35rem;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  color: #fff;
+  background: rgba(30, 42, 56, 0.38);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mapUnlock span {
+  font: 600 .9rem/1.4 var(--sans);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.mapUnlock small {
+  color: rgba(255, 255, 255, 0.88);
+  font: 500 .72rem/1.4 var(--sans);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mapLock {
+  position: absolute;
+  top: .65rem;
+  left: .65rem;
+  z-index: 2;
+  margin: 0;
+  padding: .45rem .7rem;
+  border: 0;
+  border-radius: 999px;
+  color: #2b4059;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  font: 600 .72rem/1.2 var(--sans);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .marker {
   display: block;
   padding: .45rem .65rem;
