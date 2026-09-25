@@ -2,6 +2,9 @@ const TMAP_PACKAGE = 'com.skt.tmap.ku';
 const TMAP_APP_STORE = 'https://apps.apple.com/app/id431589174';
 const TMAP_PLAY_STORE = `https://play.google.com/store/apps/details?id=${TMAP_PACKAGE}`;
 
+let activeFallbackTimer: number | undefined;
+let activeCleanup: (() => void) | undefined;
+
 function isAndroid() {
   return /android/i.test(navigator.userAgent);
 }
@@ -15,11 +18,22 @@ function isIOS() {
 /** Build tmap:// route URL from destination. */
 export function tmapRouteHref(destination: { label: string; lat: number; lng: number }) {
   const name = encodeURIComponent(destination.label);
-  return `tmap://route?goalname=${name}&goalx=${destination.lng}&goaly=${destination.lat}`;
+  const { lat, lng } = destination;
+  // Include both common param styles for Android/iOS TMAP clients.
+  return `tmap://route?goalname=${name}&goalx=${lng}&goaly=${lat}&rGoName=${name}&rGoX=${lng}&rGoY=${lat}`;
 }
 
 function openStore() {
   window.location.href = isIOS() ? TMAP_APP_STORE : TMAP_PLAY_STORE;
+}
+
+function clearActiveFallback() {
+  if (activeFallbackTimer !== undefined) {
+    window.clearTimeout(activeFallbackTimer);
+    activeFallbackTimer = undefined;
+  }
+  activeCleanup?.();
+  activeCleanup = undefined;
 }
 
 function tryOpenScheme(schemeUrl: string) {
@@ -32,6 +46,8 @@ function tryOpenScheme(schemeUrl: string) {
  * iOS Safari cannot reliably detect install state, so we ask first and keep a soft fallback.
  */
 export function openTmap(schemeUrl: string) {
+  clearActiveFallback();
+
   const match = schemeUrl.match(/^tmap:\/\/(.+)$/i);
   const path = match?.[1] ?? schemeUrl.replace(/^tmap:\/\//i, '');
   const fullScheme = `tmap://${path}`;
@@ -66,23 +82,20 @@ export function openTmap(schemeUrl: string) {
     const fallbackMs = 2000;
 
     const onVisibility = () => {
-      if (document.hidden) {
-        window.clearTimeout(timer);
-        document.removeEventListener('visibilitychange', onVisibility);
-        window.removeEventListener('pagehide', onPageHide);
-      }
+      if (document.hidden) clearActiveFallback();
     };
 
     const onPageHide = () => {
-      window.clearTimeout(timer);
+      clearActiveFallback();
+    };
+
+    activeCleanup = () => {
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pagehide', onPageHide);
     };
 
-    const timer = window.setTimeout(() => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('pagehide', onPageHide);
-
+    activeFallbackTimer = window.setTimeout(() => {
+      clearActiveFallback();
       if (document.hidden || Date.now() - startedAt > fallbackMs + 800) return;
 
       const goStore = window.confirm(

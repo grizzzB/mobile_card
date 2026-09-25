@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { LOCATION_POINTS } from '../utils/constants/transportation';
 import { loadKakaoMaps } from '../utils/kakaoMaps';
 import { openTmap, tmapRouteHref } from '../utils/openTmap';
@@ -15,12 +15,19 @@ type DirectionDestination = {
   lng: number;
 };
 
-type RouteApp = {
-  name: string;
-  icon: string;
-  href: string;
-  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
-};
+type RouteApp =
+  | {
+      kind: 'link';
+      name: string;
+      icon: string;
+      href: string;
+    }
+  | {
+      kind: 'tmap';
+      name: string;
+      icon: string;
+      href: string;
+    };
 
 const DEFAULT_DESTINATIONS: Record<'suseo' | 'parking', DirectionDestination> = {
   suseo: { label: '수서역 6번 출구', lat: 37.486917430447576, lng: 127.10183073557539 },
@@ -34,25 +41,58 @@ function routeApps(destination: DirectionDestination): RouteApp[] {
   const tmapHref = tmapRouteHref(destination);
   return [
     {
+      kind: 'link',
       name: '카카오맵',
       icon: kakaoMapIcon,
       href: `https://map.kakao.com/link/to/${name},${lat},${lng}`,
     },
     {
+      kind: 'link',
       name: '네이버지도',
       icon: naverMapIcon,
       href: `nmap://route/car?dlat=${lat}&dlng=${lng}&dname=${name}&appname=com.ourwedinvitation`,
     },
     {
+      kind: 'tmap',
       name: '티맵',
       icon: tmapIcon,
       href: tmapHref,
-      onClick: (event) => {
-        event.preventDefault();
-        openTmap(tmapHref);
-      },
     },
   ];
+}
+
+function RouteAppControl({
+  app,
+  ariaLabel,
+}: {
+  app: RouteApp;
+  ariaLabel: string;
+}) {
+  const content: ReactNode = (
+    <>
+      <img src={app.icon} alt="" />
+      <span>{app.name}</span>
+    </>
+  );
+
+  if (app.kind === 'tmap') {
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openTmap(app.href);
+    };
+    return (
+      <button type="button" className={styles.routeApp} onClick={handleClick} aria-label={ariaLabel}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <a className={styles.routeApp} href={app.href} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel}>
+      {content}
+    </a>
+  );
 }
 
 function resolvePoint(maps: KakaoMaps, point: MapPoint): Promise<LatLng | null> {
@@ -160,18 +200,11 @@ export default function VenueMap() {
           </div>
           <div className={styles.routeApps} aria-label="수서역 6번 출구 길찾기 앱 선택">
             {routeApps(destinations.suseo).map(app => (
-              <a
-                className={styles.routeApp}
-                href={app.href}
-                key={app.name}
-                target={app.onClick ? undefined : '_blank'}
-                rel="noopener noreferrer"
-                onClick={app.onClick}
-                aria-label={`${app.name}으로 수서역 6번 출구 길찾기`}
-              >
-                <img src={app.icon} alt="" />
-                <span>{app.name}</span>
-              </a>
+              <RouteAppControl
+                key={`suseo-${app.name}`}
+                app={app}
+                ariaLabel={`${app.name}으로 수서역 6번 출구 길찾기`}
+              />
             ))}
           </div>
         </div>
@@ -183,18 +216,11 @@ export default function VenueMap() {
           </div>
           <div className={styles.routeApps} aria-label="세곡동 성당 주차장 길찾기 앱 선택">
             {routeApps(destinations.parking).map(app => (
-              <a
-                className={styles.routeApp}
-                href={app.href}
-                key={app.name}
-                target={app.onClick ? undefined : '_blank'}
-                rel="noopener noreferrer"
-                onClick={app.onClick}
-                aria-label={`${app.name}으로 세곡동 성당 주차장 길찾기`}
-              >
-                <img src={app.icon} alt="" />
-                <span>{app.name}</span>
-              </a>
+              <RouteAppControl
+                key={`parking-${app.name}`}
+                app={app}
+                ariaLabel={`${app.name}으로 세곡동 성당 주차장 길찾기`}
+              />
             ))}
           </div>
         </div>
