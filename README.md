@@ -151,7 +151,7 @@ The gallery is implemented (`src/sections/GallerySection.tsx`) but not rendered.
 
 ### Music
 
-Place the audio file at `public/assets/music.mp3`. Update `musicSrc` in `weddingInfo.ts` if the filename changes; keep `import.meta.env.BASE_URL` in the path.
+The background music is `public/assets/lenny-kravitz-it-aint-over-til-its-over.mp3`. Update `musicSrc` in `weddingInfo.ts` if the filename changes; keep `import.meta.env.BASE_URL` in the path.
 
 ### Kakao map and shuttle schedule
 
