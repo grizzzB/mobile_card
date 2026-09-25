@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { LOCATION_POINTS } from '../utils/constants/transportation';
 import { loadKakaoMaps } from '../utils/kakaoMaps';
 import { openTmap, tmapRouteHref } from '../utils/openTmap';
@@ -76,13 +76,13 @@ function RouteAppControl({
   );
 
   if (app.kind === 'tmap') {
-    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      openTmap(app.href);
-    };
     return (
-      <button type="button" className={styles.routeApp} onClick={handleClick} aria-label={ariaLabel}>
+      <button
+        type="button"
+        className={styles.routeApp}
+        aria-label={ariaLabel}
+        onClick={() => openTmap(app.href)}
+      >
         {content}
       </button>
     );

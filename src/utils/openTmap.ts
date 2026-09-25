@@ -19,12 +19,11 @@ function isIOS() {
 export function tmapRouteHref(destination: { label: string; lat: number; lng: number }) {
   const name = encodeURIComponent(destination.label);
   const { lat, lng } = destination;
-  // Include both common param styles for Android/iOS TMAP clients.
-  return `tmap://route?goalname=${name}&goalx=${lng}&goaly=${lat}&rGoName=${name}&rGoX=${lng}&rGoY=${lat}`;
+  return `tmap://route?goalname=${name}&goalx=${lng}&goaly=${lat}`;
 }
 
-function openStore() {
-  window.location.href = isIOS() ? TMAP_APP_STORE : TMAP_PLAY_STORE;
+function storeUrl() {
+  return isIOS() ? TMAP_APP_STORE : TMAP_PLAY_STORE;
 }
 
 function clearActiveFallback() {
@@ -36,14 +35,13 @@ function clearActiveFallback() {
   activeCleanup = undefined;
 }
 
-function tryOpenScheme(schemeUrl: string) {
-  window.location.href = schemeUrl;
-}
-
 /**
  * Open TMAP for routing. If the app is missing, fall back to the store.
- * Android uses intent:// with browser_fallback_url.
- * iOS Safari cannot reliably detect install state, so we ask first and keep a soft fallback.
+ *
+ * Important for iOS Safari: do NOT call window.confirm() before opening the
+ * custom scheme — that breaks the user-gesture chain and the first tap often
+ * fails to open anything. Open the scheme immediately, then fall back to the
+ * App Store if the page is still visible.
  */
 export function openTmap(schemeUrl: string) {
   clearActiveFallback();
@@ -65,52 +63,28 @@ export function openTmap(schemeUrl: string) {
   }
 
   if (isIOS()) {
-    const openApp = window.confirm(
-      '티맵 앱이 설치되어 있어야 길찾기를 이용할 수 있습니다.\n\n'
-      + '• 확인: 티맵 실행\n'
-      + '• 취소: App Store에서 설치',
-    );
-
-    if (!openApp) {
-      openStore();
-      return;
-    }
-
-    // Soft fallback: if the app never opens, offer the store.
-    // Do NOT cancel on window blur — Safari's "invalid address" sheet can fire blur.
-    const startedAt = Date.now();
-    const fallbackMs = 2000;
-
-    const onVisibility = () => {
+    const onHide = () => {
       if (document.hidden) clearActiveFallback();
     };
-
-    const onPageHide = () => {
-      clearActiveFallback();
-    };
-
     activeCleanup = () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('pagehide', onPageHide);
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', onHide);
     };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', onHide);
 
+    // If TMAP did not take over, fall back to the App Store quickly.
+    // Keep this short — a long wait feels broken when the app is missing.
     activeFallbackTimer = window.setTimeout(() => {
       clearActiveFallback();
-      if (document.hidden || Date.now() - startedAt > fallbackMs + 800) return;
+      if (document.hidden) return;
+      window.location.href = storeUrl();
+    }, 500);
 
-      const goStore = window.confirm(
-        '티맵을 열지 못했습니다.\n앱이 설치되어 있지 않다면 App Store에서 설치해 주세요.\n\n설치 페이지로 이동할까요?',
-      );
-      if (goStore) openStore();
-    }, fallbackMs);
-
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('pagehide', onPageHide);
-
-    tryOpenScheme(fullScheme);
+    // Must run synchronously inside the click handler.
+    window.location.href = fullScheme;
     return;
   }
 
-  // Desktop / other: send to a store page rather than a dead custom scheme.
-  window.open(TMAP_PLAY_STORE, '_blank', 'noopener,noreferrer');
+  window.open(storeUrl(), '_blank', 'noopener,noreferrer');
 }
