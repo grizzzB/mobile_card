@@ -7,7 +7,9 @@ function isAndroid() {
 }
 
 function isIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+  // iPadOS 13+ may report as Macintosh.
+  return /iphone|ipad|ipod/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 /** Build tmap:// route URL from destination. */
@@ -16,13 +18,23 @@ export function tmapRouteHref(destination: { label: string; lat: number; lng: nu
   return `tmap://route?goalname=${name}&goalx=${destination.lng}&goaly=${destination.lat}`;
 }
 
+function openStore() {
+  window.location.href = isIOS() ? TMAP_APP_STORE : TMAP_PLAY_STORE;
+}
+
+function tryOpenScheme(schemeUrl: string) {
+  window.location.href = schemeUrl;
+}
+
 /**
  * Open TMAP for routing. If the app is missing, fall back to the store.
- * Android uses intent:// with browser_fallback_url; iOS uses a short timeout.
+ * Android uses intent:// with browser_fallback_url.
+ * iOS Safari cannot reliably detect install state, so we ask first and keep a soft fallback.
  */
 export function openTmap(schemeUrl: string) {
   const match = schemeUrl.match(/^tmap:\/\/(.+)$/i);
   const path = match?.[1] ?? schemeUrl.replace(/^tmap:\/\//i, '');
+  const fullScheme = `tmap://${path}`;
 
   if (isAndroid()) {
     const intentUrl = [
@@ -37,33 +49,52 @@ export function openTmap(schemeUrl: string) {
   }
 
   if (isIOS()) {
-    const startedAt = Date.now();
-    const fallbackMs = 1500;
+    const openApp = window.confirm(
+      '티맵 앱이 설치되어 있어야 길찾기를 이용할 수 있습니다.\n\n'
+      + '• 확인: 티맵 실행\n'
+      + '• 취소: App Store에서 설치',
+    );
 
-    const clear = () => {
-      window.clearTimeout(timer);
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('pagehide', clear);
-      window.removeEventListener('blur', clear);
-    };
+    if (!openApp) {
+      openStore();
+      return;
+    }
+
+    // Soft fallback: if the app never opens, offer the store.
+    // Do NOT cancel on window blur — Safari's "invalid address" sheet can fire blur.
+    const startedAt = Date.now();
+    const fallbackMs = 2000;
 
     const onVisibility = () => {
-      if (document.hidden) clear();
+      if (document.hidden) {
+        window.clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onVisibility);
+        window.removeEventListener('pagehide', onPageHide);
+      }
+    };
+
+    const onPageHide = () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', onPageHide);
     };
 
     const timer = window.setTimeout(() => {
-      clear();
-      // App likely did not open — still on this page shortly after the attempt.
-      if (Date.now() - startedAt < fallbackMs + 500 && !document.hidden) {
-        window.location.href = TMAP_APP_STORE;
-      }
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', onPageHide);
+
+      if (document.hidden || Date.now() - startedAt > fallbackMs + 800) return;
+
+      const goStore = window.confirm(
+        '티맵을 열지 못했습니다.\n앱이 설치되어 있지 않다면 App Store에서 설치해 주세요.\n\n설치 페이지로 이동할까요?',
+      );
+      if (goStore) openStore();
     }, fallbackMs);
 
     document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('pagehide', clear);
-    window.addEventListener('blur', clear);
+    window.addEventListener('pagehide', onPageHide);
 
-    window.location.href = `tmap://${path}`;
+    tryOpenScheme(fullScheme);
     return;
   }
 
