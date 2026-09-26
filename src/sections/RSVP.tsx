@@ -3,8 +3,6 @@ import { useScrollFade } from '../hooks/useScrollFade';
 import styles from './RSVP.module.css';
 import { WEDDING_CONFIG } from '../utils/constants/weddingInfo';
 
-const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || 'https://formspree.io/f/your_form_id';
-
 const { weddingDate, venue } = WEDDING_CONFIG;
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
 const weddingDateObj = new Date(weddingDate.year, weddingDate.month - 1, weddingDate.day);
@@ -22,8 +20,7 @@ export default function RSVP() {
   const ref = useScrollFade();
   const [modalOpen, setModalOpen] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'unavailable'>('idle');
 
   const closeModal = () => {
     setClosing(true);
@@ -34,39 +31,9 @@ export default function RSVP() {
     }, 350);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitting(true);
-    setStatus('idle');
-
-    const form = new FormData(e.currentTarget);
-    const body: Record<string, string> = {};
-    form.forEach((v, k) => (body[k] = String(v)));
-
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
-
-      const res = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeout);
-
-      if (res.ok) {
-        setStatus('success');
-        (e.target as HTMLFormElement).reset();
-      } else {
-        setStatus('error');
-      }
-    } catch {
-      setStatus('error');
-    } finally {
-      setSubmitting(false);
-    }
+    setStatus('unavailable');
   };
 
   return (
@@ -118,10 +85,10 @@ export default function RSVP() {
               </p>
             </div>
 
-            {status === 'success' ? (
+            {status === 'unavailable' ? (
               <div className={styles.success}>
-                <p>응답이 접수되었습니다.</p>
-                <p>감사합니다.</p>
+                <p>온라인 접수는 지원하지 않습니다.</p>
+                <p>신랑·신부에게 직접 연락해 주세요.</p>
                 <button className={styles.openBtn} onClick={() => { closeModal(); }}>
                   닫기
                 </button>
@@ -154,12 +121,8 @@ export default function RSVP() {
                   <textarea id="message" name="message" className={styles.textarea} rows={3} placeholder="축하 메시지를 남겨주세요." />
                 </div>
 
-                {status === 'error' && (
-                  <p className={styles.error}>전송 중 오류가 발생했습니다. 다시 시도해주세요.</p>
-                )}
-
-                <button className={styles.submitBtn} type="submit" disabled={submitting}>
-                  {submitting ? '전송중…' : '전달하기'}
+                <button className={styles.submitBtn} type="submit">
+                  전달하기
                 </button>
               </form>
             )}

@@ -9,7 +9,7 @@ A Korean digital wedding invitation (모바일 청첩장) built as a single-page
 - **Calendar** — Wedding date with a mini monthly calendar and live D-day countdown
 - **Location** — Kakao map with venue / shuttle / parking markers, 길찾기 links, and a before/after ceremony shuttle timetable. Optional collapsible subway, bus, and parking notes appear only when those lists have data
 - **Gifts** — Bank account numbers for gift money, with one-tap copy to clipboard and optional Kakao Pay links
-- **RSVP** — Modal form (name, attendance, guest count, message) submitted to Formspree
+- **RSVP** — Modal form (name, attendance, guest count, message). Online submission is not available; guests are asked to contact the couple directly.
 - **Ending** — Share button with Web Share API / clipboard fallback
 - **Music player** — Floating button that plays background music on loop; auto-plays on first user interaction
 
@@ -21,7 +21,6 @@ A photo gallery section exists in the codebase but is not currently mounted in `
 - **Vite 8** for development and bundling
 - **CSS Modules** — no external UI library
 - **Kakao Maps JavaScript SDK** for the venue map
-- **Formspree** for RSVP form submissions
 - No routing, no state management library, no backend
 
 ## Project Structure
@@ -64,13 +63,12 @@ npm install
 Copy `.env.example` to `.env` in the project root (`.env` is gitignored):
 
 ```env
-VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/your_form_id
 VITE_KAKAO_MAP_APP_KEY=your_kakao_javascript_key
 ```
 
 `VITE_BASE_PATH` is optional. Leave it unset for local development (`/`). GitHub Pages sets it in CI so assets work under a project path such as `/mobile_card/`.
 
-See [Formspree setup](#formspree-rsvp) and [Kakao map](#kakao-map-and-shuttle-schedule) below.
+See [Kakao map](#kakao-map-and-shuttle-schedule) below.
 
 ### Development
 
@@ -177,20 +175,6 @@ The JavaScript key is used in the browser; never use an Admin or REST API key he
 - Without a key or when the SDK fails, the reserved map area stays blank.
   The before/after shuttle cards remain visible.
 
-## Formspree (RSVP)
-
-The RSVP form submits to [Formspree](https://formspree.io), a third-party form backend — no server required.
-
-1. Create a free account at [formspree.io](https://formspree.io) and create a new form.
-2. Copy the form endpoint (looks like `https://formspree.io/f/xxxxxxxx`).
-3. Add it to your `.env` file:
-
-```env
-VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
-```
-
-The variable is accessed in `src/sections/RSVP.tsx` via `import.meta.env.VITE_FORMSPREE_ENDPOINT`. If the variable is missing, it falls back to a placeholder URL and submissions will fail silently — make sure it's set before deploying.
-
 ## Deployment (GitHub Pages)
 
 Pushes to `main` and manual runs of `.github/workflows/pages.yml` install with
@@ -204,7 +188,6 @@ Local development continues to use `/`.
 For optional features, add repository Actions variables under
 **Settings → Secrets and variables → Actions → Variables**:
 
-- `VITE_FORMSPREE_ENDPOINT`: the RSVP form endpoint.
 - `VITE_KAKAO_MAP_APP_KEY`: the Kakao JavaScript key; register the deployed domain in Kakao Developers.
 
 These Vite values are included in the public browser bundle. Do not use private server keys.
